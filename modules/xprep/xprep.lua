@@ -11,7 +11,7 @@ DFRL:NewDefaults("Xprep", {
     xpBarHeight = {12, "slider", {5, 20}, "showXpBar", "experience Bar", 9, "Adjusts the height of the XP bar", nil, nil},
     xpBarWidth = {400, "slider", {200, 700}, "showXpBar", "experience Bar", 10, "Adjusts the width of the XP bar", nil, nil},
     xpBarAlpha = {1, "slider", {0.1, 1}, "showXpBar", "experience Bar", 11, "Adjusts transparency of the XP bar", nil, nil},
-    barFont = {"Prototype", "dropdown", {
+    barFont = {"FRIZQT__.TTF", "dropdown", {
         "FRIZQT__.TTF",
         "Expressway",
         "Homespun",
