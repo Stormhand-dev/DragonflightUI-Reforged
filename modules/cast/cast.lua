@@ -6,7 +6,7 @@ DFRL:NewDefaults("Cast", {
     showShadow = {true, "checkbox", nil, nil, "castbar Basic", 4, "Show drop shadow below the castbar", nil, nil},
     barWidth = {200, "slider", {120, 350}, nil, "castbar Basic", 5, "Change castbar width", nil, nil},
     barHeight = {16, "slider", {10, 30}, nil, "castbar Basic", 6, "Change castbar height", nil, nil},
-    castFont = {"Prototype", "dropdown", {
+    castFont = {"FRIZQT__.TTF", "dropdown", {
         "FRIZQT__.TTF",
         "Expressway",
         "Homespun",
