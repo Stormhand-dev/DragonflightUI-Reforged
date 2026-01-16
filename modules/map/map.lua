@@ -16,7 +16,7 @@ DFRL:NewDefaults("Map", {
     showTopPanel = {true, "checkbox", nil, nil, "top panel", 14, "Show or hide the top information panel", nil, nil},
     topPanelWidth = {180, "slider", {100, 600}, nil, "top panel", 15, "Adjusts the width of the top panel", nil, nil},
     topPanelHeight = {12, "slider", {5, 50}, nil, "top panel", 16, "Adjusts the height of the top panel", nil, nil},
-    topPanelFont = {"Prototype", "dropdown", {
+    topPanelFont = {"FRIZQT__.TTF", "dropdown", {
         "FRIZQT__.TTF",
         "Expressway",
         "Homespun",
