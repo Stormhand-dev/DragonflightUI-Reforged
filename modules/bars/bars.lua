@@ -40,7 +40,7 @@ DFRL:NewDefaults("Bars", {
     pagingSwap = {true, "checkbox", nil, nil, "mainbar paging", 37, "Swap the anchorpoint of the paging buttons", nil, nil},
     pagingX = {15, "slider", {0, 150}, nil, "mainbar paging", 38, "Adjusts horizontal position of paging buttons", nil, nil},
     pagingScale = {0.9, "slider", {0.7, 1.8}, nil, "mainbar paging", 39, "Adjusts the scale of the paging buttons", nil, nil},
-    hotkeyFont = {"Prototype", "dropdown", {"FRIZQT__.TTF", "Expressway", "Homespun", "Hooge", "Myriad-Pro", "Prototype", "PT-Sans-Narrow-Bold", "PT-Sans-Narrow-Regular", "RobotoMono", "BigNoodleTitling", "Continuum", "DieDieDie"}, nil, "text settings", 40, "Change the font used for the hotkeys and macros", nil, nil},
+    hotkeyFont = {"FRIZQT__.TTF", "dropdown", {"FRIZQT__.TTF", "Expressway", "Homespun", "Hooge", "Myriad-Pro", "Prototype", "PT-Sans-Narrow-Bold", "PT-Sans-Narrow-Regular", "RobotoMono", "BigNoodleTitling", "Continuum", "DieDieDie"}, nil, "text settings", 40, "Change the font used for the hotkeys and macros", nil, nil},
     hotkeyColour = {{1, 0.82, 0}, "colour", nil, nil, "text settings", 41, "Changes the colour of keybind text on action buttons", nil, nil},
     hotkeyShow = {true, "checkbox", nil, nil, "text settings", 42, "Show or hide keybind text on action buttons", nil, nil},
     hotkeyScale = {1.4, "slider", {0.5, 2}, nil, "text settings", 43, "Adjusts the size of keybind text on action buttons", nil, nil},
