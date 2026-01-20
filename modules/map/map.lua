@@ -189,7 +189,7 @@ DFRL:NewMod("Map", 1, function()
 
         function Setup:Buffs()
             -- DFUI-compatible aura anchoring.
-            -- Replicates DFUI's original approach: only set the "row starter" buttons.
+            -- Replicates WoW Vanilla approach: only set the "row starter" buttons.
             -- We DO NOT reposition every buff button manually (that breaks DFUI movers).
 
             local buff0 = _G["BuffButton0"] or _G["BuffButton1"]
@@ -206,23 +206,23 @@ DFRL:NewMod("Map", 1, function()
                 if not p then return end
 
                 -- These offsets replicate the original DFUI Map.lua logic
-                -- (BuffButton0 at y=0, BuffButton8 at y=-15, TempEnchant1 at y=-75, BuffButton16 at y=-120)
+                -- (BuffButton0 at y=0, BuffButton8 at y=-50, TempEnchant1 at y=-100, BuffButton16 at y=-150, BuffButton32 at y=-200)
                 local row2 = getBtn(startIndex + 8)
                 if row2 then
                     row2:ClearAllPoints()
-                    row2:SetPoint(p, rel, rp, x, y - 15)
+                    row2:SetPoint(p, rel, rp, x, y - 50)
                 end
 
                 local ench = _G["TempEnchant1"]
                 if ench then
                     ench:ClearAllPoints()
-                    ench:SetPoint(p, rel, rp, x, y - 85)
+                    ench:SetPoint(p, rel, rp, x, y - 100)
                 end
 
                 local row3 = getBtn(startIndex + 16)
                 if row3 then
                     row3:ClearAllPoints()
-                    row3:SetPoint(p, rel, rp, x, y - 130)
+                    row3:SetPoint(p, rel, rp, x, y - 150)
                 end
 
 		local row4 = getBtn(startIndex + 32)
