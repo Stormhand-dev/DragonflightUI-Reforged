@@ -120,9 +120,14 @@ Immersion is developed and maintained by the same author.
 ## 📜 Credits
 
 Blizzard
-
 Guzruul
-
 Shagu
-
 DragonflightUI by Karl-Heinz-Schneider
+
+## 📜 Credits
+
+- **:contentReference[oaicite:0]{index=0}**
+- **:contentReference[oaicite:1]{index=1}**
+- **:contentReference[oaicite:2]{index=2}**
+- **DragonflightUI** by **:contentReference[oaicite:3]{index=3}**
+
