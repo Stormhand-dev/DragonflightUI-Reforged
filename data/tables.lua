@@ -123,6 +123,7 @@ local darkMode = {
         ["zoneTextX"] = 4,
         ["topPanelFont"] = "Prototype",
         ["textColor"] = false,
+        ["buffScale"] = 1,
     },
     ["Target"] = {
         ["noPercent"] = true,
@@ -588,6 +589,7 @@ local lightMode = {
         ["zoneTextX"] = 4,
         ["zoneTextY"] = -3,
         ["textColor"] = false,
+        ["buffScale"] = 1,
     },
     ["Mini"] = {
         ["miniPetTextMaxShow"] = true,

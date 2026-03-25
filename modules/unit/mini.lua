@@ -60,6 +60,7 @@ DFRL:NewMod("Mini", 1, function()
         totManaValueText = nil,
         petHealthBar = nil,
         petManaBar = nil,
+        petXPBar = nil,       -- Hunter pet XP bar (PetXPBar merge)
         totHealthBar = nil,
         totManaBar = nil,
         partyHealthBars = {},
@@ -155,6 +156,44 @@ DFRL:NewMod("Mini", 1, function()
         self.petManaBar:SetFillColor(0, 0, 1)
         self.petManaBar.max = 100
 
+        -- Hunter pet XP bar (from PetXPBar) --
+        -- Border dimensions are computed first so the bar height matches,
+        -- ensuring the status bar fill covers the full interior of the border frame.
+        local xpBarWidth = self.petManaBar:GetWidth() * 0.95  -- 95% of mana bar width
+        local xpBorderWidth = xpBarWidth * 1.2
+        local xpBorderHeight = xpBorderWidth / (120 / 18)  -- ~12.42px, preserves aspect ratio
+
+        local xpBar = CreateFrame("StatusBar", "PetXPBar", PetFrame, "TextStatusBar")
+        xpBar:SetWidth(xpBarWidth)
+        xpBar:SetHeight(xpBorderHeight / 1.25)  -- inset within border vertically
+        xpBar:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
+        xpBar:SetStatusBarColor(1, 0, 1)  -- magenta
+        xpBar:ClearAllPoints()
+        xpBar:SetPoint("TOP", self.petManaBar, "BOTTOM", 0, -2)
+        local xpBg = xpBar:CreateTexture(nil, "BACKGROUND")
+        xpBg:SetAllPoints(xpBar)
+        xpBg:SetVertexColor(0, 0, 0, 0.5)
+        -- Border overlay: centered on the bar, offset left by half the extra width
+        -- so the bar sits in the middle of the border horizontally.
+        local xpBorder = xpBar:CreateTexture(nil, "OVERLAY")
+        xpBorder:SetWidth(xpBorderWidth)
+        xpBorder:SetHeight(xpBorderHeight)
+        xpBorder:SetTexture([[Interface\CharacterFrame\UI-CharacterFrame-GroupIndicator]])
+        xpBorder:SetPoint("CENTER", xpBar, "CENTER", 0, 0)
+        xpBorder:SetTexCoord(0.0234375, 0.6875, 1.0, 0.0)
+        xpBar:Hide()  -- hidden by default; shown only for hunter pets
+        self.petXPBar = xpBar
+        -- End pet XP bar setup --
+
+        -- Move pet debuffs below the XP bar
+        for i = 1, 4 do
+            local debuff = _G["PetFrameDebuff" .. i]
+            if debuff then
+                debuff:ClearAllPoints()
+                debuff:SetPoint("TOPLEFT", xpBar, "BOTTOMLEFT", (i - 1) * 18, -4)
+            end
+        end
+
         local petEventFrame = CreateFrame('Frame')
         petEventFrame:RegisterEvent('UNIT_HEALTH')
         petEventFrame:RegisterEvent('UNIT_MANA')
@@ -214,6 +253,37 @@ DFRL:NewMod("Mini", 1, function()
             end
 
             Setup.UpdatePetTexts()
+        end
+    end
+
+    -- Updates the hunter pet XP bar visibility and value.
+    -- Only shown when HasPetUI() indicates a hunter pet (isHunterPet == 1) below level 60.
+    -- Debuffs are repositioned below the XP bar when visible, or below the mana bar when hidden.
+    function Setup:UpdatePetXPBar()
+        if not self.petXPBar then return end
+        local hasPetInterface, isHunterPet = HasPetUI()
+        local showXP = hasPetInterface == 1 and isHunterPet == 1 and (UnitLevel("pet") or 0) < 60
+        if showXP then
+            local curXP, maxXP = GetPetExperience()
+            if maxXP and maxXP > 0 then
+                self.petXPBar:SetMinMaxValues(0, maxXP)
+                self.petXPBar:SetValue(curXP or 0)
+                self.petXPBar:Show()
+            else
+                self.petXPBar:Hide()
+                showXP = false
+            end
+        else
+            self.petXPBar:Hide()
+        end
+        -- Reposition debuffs depending on whether the XP bar is visible
+        local debuffAnchor = showXP and self.petXPBar or self.petManaBar
+        for i = 1, 4 do
+            local debuff = _G["PetFrameDebuff" .. i]
+            if debuff then
+                debuff:ClearAllPoints()
+                debuff:SetPoint("TOPLEFT", debuffAnchor, "BOTTOMLEFT", (i - 1) * 18, -4)
+            end
         end
     end
 
@@ -606,6 +676,7 @@ DFRL:NewMod("Mini", 1, function()
         self:HookEvents()
         self.UpdatePetTexts()
         self:UpdateTargetOfTargetTexts()
+        self:UpdatePetXPBar()
     end
 
     Setup:Run()
@@ -856,6 +927,7 @@ DFRL:NewMod("Mini", 1, function()
     f:RegisterEvent("UNIT_RAGE")
     f:RegisterEvent("UNIT_FOCUS")
     f:RegisterEvent("UNIT_PET")
+    f:RegisterEvent("UNIT_PET_EXPERIENCE")  -- Hunter pet XP (from PetXPBar)
     f:RegisterEvent("PARTY_MEMBERS_CHANGED")
     f:RegisterEvent("PLAYER_TARGET_CHANGED")
     f:RegisterEvent("UNIT_TARGET")
@@ -871,6 +943,11 @@ DFRL:NewMod("Mini", 1, function()
                 if Setup.partyHealthBars[i] then Setup.partyHealthBars[i]:SuppressCutout() end
                 if Setup.partyManaBars[i] then Setup.partyManaBars[i]:SuppressCutout() end
             end
+        end
+
+        -- Hunter pet XP bar update (from PetXPBar)
+        if event == "PLAYER_ENTERING_WORLD" or event == "UNIT_PET" or event == "UNIT_PET_EXPERIENCE" then
+            Setup:UpdatePetXPBar()
         end
 
         if event == "PLAYER_ENTERING_WORLD" or event == "UNIT_PET" or

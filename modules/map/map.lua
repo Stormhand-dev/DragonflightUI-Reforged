@@ -39,6 +39,7 @@ DFRL:NewDefaults("Map", {
     timeX = {-4, "slider", {-50, 50}, nil, "top panel time", 24, "Adjusts horizontal position of the time display", nil, nil},
     timeFormat12h = {false, "checkbox", nil, nil, "top panel time", 25, "Use 12-hour AM/PM time format instead of 24-hour", nil, nil},
     textColor = {false, "checkbox", nil, nil, "ext. PizzaWorldBuffs", 26, "Colorize the PizzaWorldBuffs Alliance/Horde text", "BUG: slash commands not implemented yet - fix soon", nil},
+    buffScale = {1, "slider", {0.3, 2}, nil, "buffs & debuffs", 27, "Adjusts the scale of buff and debuff icons", nil, nil},
 })
 
 DFRL:NewMod("Map", 1, function()
@@ -187,20 +188,27 @@ DFRL:NewMod("Map", 1, function()
         end
 
         function Setup:Buffs()
+            local scale = DFRL:GetTempDB("Map", "buffScale") or 1
+
             BuffButton0:ClearAllPoints()
             BuffButton0:SetPoint("TOPRIGHT", Setup.topPanel, "TOPLEFT", -50, 0)
+            BuffButton0:SetScale(scale)
 
             BuffButton8:ClearAllPoints()
             BuffButton8:SetPoint("TOPRIGHT", Setup.topPanel, "TOPLEFT", -50, -50)
+            BuffButton8:SetScale(scale)
 
             TempEnchant1:ClearAllPoints()
             TempEnchant1:SetPoint("TOPRIGHT", Setup.topPanel, "TOPLEFT", -50, -100)
+            TempEnchant1:SetScale(scale)
 
             BuffButton16:ClearAllPoints()
             BuffButton16:SetPoint("TOPRIGHT", Setup.topPanel, "TOPLEFT", -50, -150)
+            BuffButton16:SetScale(scale)
 
 	    BuffButton32:ClearAllPoints()
             BuffButton32:SetPoint("TOPRIGHT", Setup.topPanel, "TOPLEFT", -50, -200)
+            BuffButton32:SetScale(scale)
         end
 
         function Setup:Tracker()
@@ -789,6 +797,15 @@ DFRL:NewMod("Map", 1, function()
         callbacks.timeFormat12h = function(value)
             local localTime = value and string.gsub(date('%I:%M %p'), ' ', '  ') or date('%H:%M')
             Setup.timeText:SetText(localTime)
+        end
+
+        callbacks.buffScale = function(value)
+            local frames = {BuffButton0, BuffButton8, TempEnchant1, BuffButton16, BuffButton32}
+            for _, frame in ipairs(frames) do
+                if frame then
+                    frame:SetScale(value)
+                end
+            end
         end
 
         -- execute callbacks

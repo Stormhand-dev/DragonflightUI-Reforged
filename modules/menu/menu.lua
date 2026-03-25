@@ -42,7 +42,7 @@ DFRL:NewMod("Menu", 1, function()
             return origShowUIPanel(frame, force)
         end
 
-        local frames = {OptionsFrame, SoundOptionsFrame, UIOptionsFrame}
+        local frames = {OptionsFrame}
         for _, frame in ipairs(frames) do
             if frame then
                 local origOnShow = frame:GetScript("OnShow")
