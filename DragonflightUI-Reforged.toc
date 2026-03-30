@@ -9,6 +9,7 @@
 # CORE
 core\error.lua
 core\core.lua
+core\locale.lua
 core\tools.lua
 core\statusbar.lua
 core\compat.lua

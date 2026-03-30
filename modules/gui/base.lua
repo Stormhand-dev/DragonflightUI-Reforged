@@ -225,7 +225,7 @@ DFRL:NewMod("Gui-base", 2, function()
 
             local charName = UnitName("player")
             local profileName = DFRL_CUR_PROFILE[charName] or "Default"
-            self.profileText:SetText("Profile:   |cffffffff" .. profileName .. "|r")
+            self.profileText:SetText(DFRL:TR("Profile") .. ":   |cffffffff" .. DFRL:DisplayProfileName(profileName) .. "|r")
 
             self.fpsText = self.subFrame:CreateFontString(nil, "OVERLAY")
             self.fpsText:SetFont(self.font.. "BigNoodleTitling.ttf", 14, "OUTLINE")
@@ -236,8 +236,8 @@ DFRL:NewMod("Gui-base", 2, function()
                 if (this.fpsTimer or 0) > GetTime() then return end
                 this.fpsTimer = GetTime() + 0.5
                 DFRL.activeScripts["GUI SubFrame"] = true
-                self.fpsText:SetText("FPS: |cffffffff" .. format("%.1f", GetFramerate()) .. "|r")
-                self.profileText:SetText("Profile:   |cffffffff" .. (DFRL_CUR_PROFILE[UnitName("player")] or "Default") .. "|r")
+                self.fpsText:SetText(DFRL:TR("FPS:") .. " |cffffffff" .. format("%.1f", GetFramerate()) .. "|r")
+                self.profileText:SetText(DFRL:TR("Profile") .. ":   |cffffffff" .. DFRL:DisplayProfileName(DFRL_CUR_PROFILE[UnitName("player")] or "Default") .. "|r")
             end)
 
             self.subFrame:SetScript("OnShow", function()
@@ -275,7 +275,7 @@ DFRL:NewMod("Gui-base", 2, function()
                 text:SetTextColor(.7, .7, .7, 1)
                 text:SetPoint("CENTER", tab, "CENTER")
                 tab:SetFontString(text)
-                tab:SetText(Setup.tabs[i])
+                tab:SetText(DFRL:TR(Setup.tabs[i]))
 
                 local tabIndex = i
                 tab:SetScript("OnClick", function()
@@ -346,7 +346,7 @@ DFRL:NewMod("Gui-base", 2, function()
             self.slider:Show()
         end
         if tabIndex ~= 1 then
-            self.panelTitle:SetText(self.tabs[tabIndex])
+            self.panelTitle:SetText(DFRL:TR(self.tabs[tabIndex]))
         else
             self.panelTitle:SetText("")
         end

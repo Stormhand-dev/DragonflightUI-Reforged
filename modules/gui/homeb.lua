@@ -18,6 +18,7 @@ DFRL:NewDefaults("GUI-Dragonflight", {
     sideView = {.3, "slider", {.1, .8}, nil, "Home Screen", 3, "Changes the alpha of the side view", "", nil},
     homeMinMaxColor = {{1, .82, 0}, "colour", nil, nil, "Home Screen", 4, "Changes the color of the close and min button", nil, nil},
     homeTimeColor = {{1, .82, 0}, "colour", nil, nil, "Home Screen", 5, "Changes the color of the time on the home screen", nil, nil},
+    language = {(GetLocale() == "frFR" and "Francais" or "English"), "dropdown", {"English", "Francais"}, nil, "localization", 6, "Select the language used in the configuration UI", nil, nil},
 })
 
 DFRL:NewMod("GUI-Dragonflight", 4, function()
@@ -313,6 +314,7 @@ DFRL:NewMod("GUI-Dragonflight", 4, function()
 
     -- callbacks
     local callbacks = {}
+    local lastAppliedLanguage = nil
 
     callbacks.homeTimeColor = function (value)
         Setup.timeText:SetTextColor(value[1], value[2], value[3])
@@ -349,6 +351,21 @@ DFRL:NewMod("GUI-Dragonflight", 4, function()
         if Base.selectedTab > 4 then
             Base.rightTex:SetAlpha(value)
         end
+    end
+
+    callbacks.language = function(value)
+        if not lastAppliedLanguage then
+            lastAppliedLanguage = value
+            return
+        end
+
+        if lastAppliedLanguage == value then
+            return
+        end
+
+        lastAppliedLanguage = value
+        DFRL:SaveTempDB()
+        ReloadUI()
     end
 
     callbacks.globalFont = function(value)

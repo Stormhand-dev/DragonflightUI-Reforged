@@ -264,7 +264,7 @@ self.grid:AddElement(6, 8,
             scriptText:SetText(scriptName)
             scriptText:SetTextColor(1, 1, 1)
 
-            statusText:SetText(DFRL.activeScripts[scriptName] and "ON" or "OFF")
+            statusText:SetText(DFRL:TR(DFRL.activeScripts[scriptName] and "ON" or "OFF"))
             statusText:SetTextColor(DFRL.activeScripts[scriptName] and 0 or 0.5, DFRL.activeScripts[scriptName] and 1 or 0.5, DFRL.activeScripts[scriptName] and 0 or 0.5)
 
             index = index + 1
@@ -294,7 +294,7 @@ self.grid:AddElement(6, 8,
             scriptText:SetText(scriptName)
             scriptText:SetTextColor(1, 1, 1)
 
-            statusText:SetText(DFRL.activeScripts[scriptName] and "ON" or "OFF")
+            statusText:SetText(DFRL:TR(DFRL.activeScripts[scriptName] and "ON" or "OFF"))
             statusText:SetTextColor(DFRL.activeScripts[scriptName] and 0 or 0.5, DFRL.activeScripts[scriptName] and 1 or 0.5, DFRL.activeScripts[scriptName] and 0 or 0.5)
 
             index = index + 1
