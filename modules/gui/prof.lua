@@ -44,6 +44,7 @@ DFRL:NewMod("Gui-prof", 4, function()
             switchBtns = {},
             newProfileBtn = nil,
             resetBtn = nil,
+            saveBtn = nil,
             warner = nil
         }
     }
@@ -76,7 +77,7 @@ DFRL:NewMod("Gui-prof", 4, function()
             self.ui.curText:SetFont(self.font .. "BigNoodleTitling.ttf", self.TEXT_SIZE, "OUTLINE")
             self.ui.curText:SetPoint("TOPLEFT", self.ui.frame, "TOPLEFT", 10, -10)
         end
-        self.ui.curText:SetText("Current:   |cff80ff80" .. curProf .. "|r")
+        self.ui.curText:SetText(DFRL:TR("Current") .. ":   |cff80ff80" .. DFRL:DisplayProfileName(curProf) .. "|r")
         for _, text in pairs(self.ui.texts) do
             text:Hide()
         end
@@ -113,7 +114,7 @@ DFRL:NewMod("Gui-prof", 4, function()
             local text = self.ui.frame:CreateFontString(nil, "OVERLAY")
             text:SetFont(self.font .. "BigNoodleTitling.ttf", self.TEXT_SIZE, "OUTLINE")
             text:SetPoint("TOPLEFT", self.ui.frame, "TOPLEFT", 10, yOffset)
-            text:SetText(name)
+            text:SetText(DFRL:DisplayProfileName(name))
             table.insert(self.ui.texts, text)
             if name ~= "Default" then
                 local profName = name
@@ -132,7 +133,11 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(0, 1, 0)
-                    Setup.ui.warner:SetText("switched to " .. clickedName)
+                    if DFRL:IsFrench() then
+                        Setup.ui.warner:SetText(DFRL:TR("switched to") .. " " .. clickedName)
+                    else
+                        Setup.ui.warner:SetText("switched to " .. clickedName)
+                    end
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                 end)
@@ -152,7 +157,11 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(1, 1, 0)
-                    Setup.ui.warner:SetText("profile copied from " .. clickedName)
+                    if DFRL:IsFrench() then
+                        Setup.ui.warner:SetText(DFRL:TR("profile copied from") .. " " .. clickedName)
+                    else
+                        Setup.ui.warner:SetText("profile copied from " .. clickedName)
+                    end
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                 end)
@@ -171,7 +180,11 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(1, 0, 0)
-                    Setup.ui.warner:SetText(clickedName .. " deleted")
+                    if DFRL:IsFrench() then
+                        Setup.ui.warner:SetText(clickedName .. " " .. DFRL:TR("deleted"))
+                    else
+                        Setup.ui.warner:SetText(clickedName .. " deleted")
+                    end
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                 end)
@@ -233,7 +246,7 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(1, 0, 0)
-                    Setup.ui.warner:SetText("MAX PROFILES REACHED")
+                    Setup.ui.warner:SetText(DFRL:TR("MAX PROFILES REACHED"))
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                     return
@@ -259,7 +272,7 @@ DFRL:NewMod("Gui-prof", 4, function()
                                 Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                             end
                             Setup.ui.warner:SetTextColor(0, 1, 0)
-                            Setup.ui.warner:SetText("new profile created")
+                            Setup.ui.warner:SetText(DFRL:TR("new profile created"))
                             Setup.ui.warner:Show()
                             Setup:RestartWarnerPulse()
                         end
@@ -288,7 +301,7 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(0, 1, 0)
-                    Setup.ui.warner:SetText("CURRENT PROFILE RESET")
+                    Setup.ui.warner:SetText(DFRL:TR("CURRENT PROFILE RESET"))
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                 else
@@ -297,12 +310,27 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(1, 0, 0)
-                    Setup.ui.warner:SetText("PROFILE RESET FAILED")
+                    Setup.ui.warner:SetText(DFRL:TR("PROFILE RESET FAILED"))
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                 end
             end)
 
+        end
+        if not self.ui.saveBtn then
+            self.ui.saveBtn = DFRL.tools.CreateButton(panel, "Save Profile", 120, 30, true, {0.5, 1, 0.5})
+            self.ui.saveBtn:SetPoint("TOPLEFT", self.ui.resetBtn, "BOTTOMLEFT", 0, -10)
+            self.ui.saveBtn:SetScript("OnClick", function()
+                DFRL:SaveTempDB()
+                if not Setup.ui.warner then
+                    Setup.ui.warner = DFRL.tools.CreateFontWarner(panel, 14, "", {0, 1, 0}, true, 3)
+                    Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
+                end
+                Setup.ui.warner:SetTextColor(0, 1, 0)
+                Setup.ui.warner:SetText(DFRL:TR("profile saved"))
+                Setup.ui.warner:Show()
+                Setup:RestartWarnerPulse()
+            end)
         end
     end
 
