@@ -98,8 +98,15 @@ function DFRL.tools.CreateFont(parent, size, text, colour, align)
     font:SetFont(DFRL:GetInfoOrCons("font") .. "BigNoodleTitling.ttf", size or 14, "OUTLINE")
     colour = colour or {1, 1, 1}
     font:SetTextColor(colour[1], colour[2], colour[3])
-    font:SetText(text)
+    font.rawText = text
+    font:SetText(DFRL:TR(text or ""))
     font.align = align or "CENTER"
+
+    function font:SetLocalizedText(newText)
+        self.rawText = newText
+        self:SetText(DFRL:TR(newText or ""))
+    end
+
     return font
 end
 
@@ -107,21 +114,37 @@ function DFRL.tools.CreateButton(parent, text, width, height, noBackdrop, textCo
     local btn = CreateFrame("Button", nil, parent or UIParent)
     btn:SetWidth(width or 140)
     btn:SetHeight(height or 30)
+
     if not noBackdrop then
         btn:SetBackdrop({
             bgFile = "Interface\\Buttons\\WHITE8X8",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-            tile = true, tileSize = 16, edgeSize = 16,
+            tile = true, tileSize = 16, edgeSize = 14,
             insets = { left = 4, right = 4, top = 4, bottom = 4 }
         })
-        btn:SetBackdropColor(0, 0, 0, .5)
-        btn:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
+        btn:SetBackdropColor(0.04, 0.04, 0.04, .88)
+        btn:SetBackdropBorderColor(1, 0.82, 0, 0.35)
+    else
+        local bg = btn:CreateTexture(nil, "BACKGROUND")
+        bg:SetTexture("Interface\\Buttons\\WHITE8X8")
+        bg:SetPoint("TOPLEFT", btn, "TOPLEFT", 1, -1)
+        bg:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -1, 1)
+        bg:SetVertexColor(0.08, 0.08, 0.08, 0.28)
+        btn._bg = bg
+
+        local border = btn:CreateTexture(nil, "BORDER")
+        border:SetTexture("Interface\\Buttons\\WHITE8X8")
+        border:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, 0)
+        border:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 0, 0)
+        border:SetVertexColor(1, 0.82, 0, 0.16)
+        btn._border = border
     end
 
     local btnTxt = btn:CreateFontString(nil, "OVERLAY")
     btnTxt:SetFont(DFRL:GetInfoOrCons("font") .. "BigNoodleTitling.ttf", 12, "OUTLINE")
     btnTxt:SetPoint("CENTER", btn, "CENTER", 0, 0)
-    btnTxt:SetText(text)
+    btn.rawText = text
+    btnTxt:SetText(DFRL:TR(text or ""))
 
     if textColor then
         btnTxt:SetTextColor(textColor[1], textColor[2], textColor[3])
@@ -130,6 +153,11 @@ function DFRL.tools.CreateButton(parent, text, width, height, noBackdrop, textCo
     end
 
     btn.text = btnTxt
+
+    function btn:SetLocalizedText(newText)
+        self.rawText = newText
+        self.text:SetText(DFRL:TR(newText or ""))
+    end
 
     local origEnable = btn.Enable
     local origDisable = btn.Disable
@@ -141,11 +169,17 @@ function DFRL.tools.CreateButton(parent, text, width, height, noBackdrop, textCo
         else
             btnTxt:SetTextColor(1, 1, 1)
         end
+        if self.SetBackdropBorderColor and not noBackdrop then
+            self:SetBackdropBorderColor(1, 0.82, 0, 0.35)
+        end
     end
 
     btn.Disable = function(self)
         origDisable(self)
         btnTxt:SetTextColor(0.5, 0.5, 0.5)
+        if self.SetBackdropBorderColor and not noBackdrop then
+            self:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.2)
+        end
     end
 
     local highlight = btn:CreateTexture(nil, "HIGHLIGHT")
@@ -153,6 +187,24 @@ function DFRL.tools.CreateButton(parent, text, width, height, noBackdrop, textCo
     highlight:SetPoint("TOPLEFT", btn, "TOPLEFT", 2, -4)
     highlight:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 4)
     highlight:SetBlendMode("ADD")
+
+    btn:SetScript("OnEnter", function()
+        if noBackdrop then
+            if this._bg then this._bg:SetVertexColor(0.12, 0.12, 0.12, 0.45) end
+            if this._border then this._border:SetVertexColor(1, 0.82, 0, 0.45) end
+        else
+            this:SetBackdropBorderColor(1, 0.82, 0, 0.65)
+        end
+    end)
+
+    btn:SetScript("OnLeave", function()
+        if noBackdrop then
+            if this._bg then this._bg:SetVertexColor(0.08, 0.08, 0.08, 0.28) end
+            if this._border then this._border:SetVertexColor(1, 0.82, 0, 0.16) end
+        else
+            this:SetBackdropBorderColor(1, 0.82, 0, 0.35)
+        end
+    end)
 
     return btn
 end
@@ -165,7 +217,7 @@ function DFRL.tools.CreateIndiCheckbox(parent, name, text)
     local label = checkbox:CreateFontString(nil, "BACKGROUND")
     label:SetFont(DFRL:GetInfoOrCons("font") .. "BigNoodleTitling.ttf", 12, "OUTLINE")
     label:SetPoint("LEFT", checkbox, "RIGHT", 5, 0)
-    label:SetText(text or "Checkbox")
+    label:SetText(DFRL:TR(text or "Checkbox"))
     label:SetTextColor(.9,.9,.9)
     checkbox.label = label
 
@@ -194,18 +246,20 @@ function DFRL.tools.CreateIndiSlider(parent, name, text, minVal, maxVal, step)
     slider:SetOrientation("HORIZONTAL")
     slider:SetThumbTexture("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
     slider:SetBackdrop({
-        bgFile = "Interface\\Buttons\\UI-SliderBar-Background",
-        edgeFile = "Interface\\Buttons\\UI-SliderBar-Border",
-        tile = true, tileSize = 8, edgeSize = 8,
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        tile = true, tileSize = 8, edgeSize = 10,
         insets = { left = 3, right = 3, top = 6, bottom = 6 }
     })
+    slider:SetBackdropColor(0.03, 0.03, 0.03, 0.85)
+    slider:SetBackdropBorderColor(1, 0.82, 0, 0.18)
 
     slider:SetMinMaxValues(minVal or 0, maxVal or 5)
     slider:SetValueStep(step or 0.1)
 
     local label = slider:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     label:SetPoint("BOTTOMLEFT", slider, "TOPLEFT", 0, -0)
-    label:SetText(text or "Slider")
+    label:SetText(DFRL:TR(text or "Slider"))
     label:SetFont(DFRL:GetInfoOrCons("font") .. "BigNoodleTitling.ttf", 12, "OUTLINE")
     label:SetTextColor(.9,.9,.9)
     slider.label = label
@@ -279,13 +333,15 @@ function DFRL.tools.CreateIndiDropDown(parent, text, items, width, height)
 
     btn.popup = popup
     btn.selectedValue = items[1]
+    btn.text:SetText(DFRL:TR(btn.selectedValue))
 
     for i = 1, table.getn(items) do
         local itemBtn = DFRL.tools.CreateButton(popup, items[i], popup:GetWidth() - 4, 20, true)
+        itemBtn.itemValue = items[i]
         itemBtn:SetPoint("TOP", popup, "TOP", 0, -(i - 1) * 22 - 5)
         itemBtn:SetScript("OnClick", function()
-            btn.text:SetText(this.text:GetText())
-            btn.selectedValue = this.text:GetText()
+            btn.text:SetText(DFRL:TR(this.itemValue))
+            btn.selectedValue = this.itemValue
             popup:Hide()
         end)
     end
@@ -320,10 +376,12 @@ function DFRL.tools.CreateEditBox(parent, width, height, letters, numbers, max)
     box:SetHeight(height or 20)
     box:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
-        insets = { left = -5, right = -5, top = 0, bottom = 0 }
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        tile = true, tileSize = 8, edgeSize = 12,
+        insets = { left = 3, right = 3, top = 3, bottom = 3 }
     })
-    box:SetBackdropColor(0, 0, 0, 0.8)
-    box:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
+    box:SetBackdropColor(0.02, 0.02, 0.02, 0.9)
+    box:SetBackdropBorderColor(1, 0.82, 0, 0.25)
     box:SetFont(DFRL:GetInfoOrCons("font") .. "BigNoodleTitling.ttf", 14, "OUTLINE")
     box:SetTextColor(1, 1, 1)
     box:SetTextInsets(5, 5, 5, 5)
@@ -390,19 +448,31 @@ function DFRL.tools.CreateCategoryHeader(parent, categoryName, noBG, width, heig
             tile = true, tileSize = 16, edgeSize = 16,
             insets = { left = 4, right = 4, top = 4, bottom = 4 }
         })
-        categoryBg:SetBackdropColor(0.1, 0.1, 0.1, 0.6)
-        categoryBg:SetBackdropBorderColor(0.1, 0.1, 0.1, 0.5)
+        categoryBg:SetBackdropColor(0.05, 0.05, 0.05, 0.78)
+        categoryBg:SetBackdropBorderColor(1, 0.82, 0, 0.22)
     end
 
     local categoryTitle = categoryBg:CreateFontString(nil, "OVERLAY")
     categoryTitle:SetFont(DFRL:GetInfoOrCons("font") .. "BigNoodleTitling.ttf", txtSize or 14, "OUTLINE")
     categoryTitle:SetPoint("CENTER", categoryBg, "CENTER", 0, 1)
-    local words = string.gfind(categoryName, "%S+")
-    local capitalizedWords = {}
-    for word in words do
-        table.insert(capitalizedWords, string.upper(string.sub(word, 1, 1)) .. string.sub(word, 2))
+    categoryBg.title = categoryTitle
+    categoryBg.rawCategoryName = categoryName
+
+    function categoryBg:RefreshText()
+        local localizedName = DFRL:TR(self.rawCategoryName or "")
+        if DFRL:IsFrench() then
+            self.title:SetText(localizedName)
+        else
+            local words = string.gfind(localizedName, "%S+")
+            local capitalizedWords = {}
+            for word in words do
+                table.insert(capitalizedWords, string.upper(string.sub(word, 1, 1)) .. string.sub(word, 2))
+            end
+            self.title:SetText(table.concat(capitalizedWords, " "))
+        end
     end
-    categoryTitle:SetText(table.concat(capitalizedWords, " "))
+
+    categoryBg:RefreshText()
     categoryTitle:SetTextColor(1, 0.82, 0)
 
     return categoryBg
@@ -416,8 +486,7 @@ function DFRL.tools.CreateCheckbox(parent, name, moduleName, key, noCall)
     local label = checkbox:CreateFontString(nil, "BACKGROUND")
     label:SetFont(DFRL:GetInfoOrCons("font") .. "BigNoodleTitling.ttf", 12, "OUTLINE")
     label:SetPoint("LEFT", checkbox, "RIGHT", 5, 0)
-    local displayTxt = string.gsub(key, "(%l)(%u)", "%1 %2")
-    displayTxt = string.upper(string.sub(displayTxt, 1, 1)) .. string.sub(displayTxt, 2)
+    local displayTxt = DFRL:GetOptionLabel(moduleName, key)
     label:SetText(displayTxt)
     label:SetTextColor(.9,.9,.9)
     checkbox.label = label
@@ -445,7 +514,7 @@ function DFRL.tools.CreateShaguCheckbox(parent, name, key)
     local label = checkbox:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     label:SetFont(DFRL:GetInfoOrCons("font") .. "BigNoodleTitling.ttf", 14, "OUTLINE")
     label:SetPoint("LEFT", checkbox, "RIGHT", 5, 0)
-    label:SetText(key)
+    label:SetText(DFRL:TR(key))
     label:SetTextColor(.9,.9,.9)
     checkbox.label = label
 
@@ -490,8 +559,7 @@ function DFRL.tools.CreateSlider(parent, name, moduleName, key, minVal, maxVal, 
 
     local label = slider:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     label:SetPoint("BOTTOMLEFT", slider, "TOPLEFT", 0, -0)
-    local displayTxt = string.gsub(key, "(%l)(%u)", "%1 %2")
-    displayTxt = string.upper(string.sub(displayTxt, 1, 1)) .. string.sub(displayTxt, 2)
+    local displayTxt = DFRL:GetOptionLabel(moduleName, key)
     label:SetText(displayTxt)
     label:SetFont(DFRL:GetInfoOrCons("font") .. "BigNoodleTitling.ttf", 12, "OUTLINE")
     label:SetTextColor(.9,.9,.9)
@@ -591,19 +659,20 @@ function DFRL.tools.CreateColour(parent, name, moduleName, key)
     slider:SetOrientation("HORIZONTAL")
     slider:SetThumbTexture("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
     slider:SetBackdrop({
-        bgFile = "Interface\\Buttons\\UI-SliderBar-Background",
-        edgeFile = "Interface\\Buttons\\UI-SliderBar-Border",
-        tile = true, tileSize = 8, edgeSize = 8,
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        tile = true, tileSize = 8, edgeSize = 10,
         insets = { left = 3, right = 3, top = 6, bottom = 6 }
     })
+    slider:SetBackdropColor(0.03, 0.03, 0.03, 0.85)
+    slider:SetBackdropBorderColor(1, 0.82, 0, 0.18)
 
     slider:SetMinMaxValues(1, COLOR_COUNT)
     slider:SetValueStep(1)
 
     local label = slider:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     label:SetPoint("BOTTOMLEFT", slider, "TOPLEFT", 0, -0)
-    local displayText = string.gsub(key, "(%l)(%u)", "%1 %2")
-    displayText = string.upper(string.sub(displayText, 1, 1)) .. string.sub(displayText, 2)
+    local displayText = DFRL:GetOptionLabel(moduleName, key)
     label:SetText(displayText)
     label:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
     label:SetTextColor(.9,.9,.9)
@@ -680,8 +749,7 @@ function DFRL.tools.CreateDropDown(parent, name, moduleName, key, items, noCall,
     local btnTxt = btn:CreateFontString(nil, "OVERLAY")
     btnTxt:SetFont(DFRL:GetInfoOrCons("font") .. "BigNoodleTitling.ttf", 12, "OUTLINE")
     btnTxt:SetPoint("CENTER", btn, "CENTER", 0, 0)
-    local displayTxt = string.gsub(key, "(%l)(%u)", "%1 %2")
-    displayTxt = string.upper(string.sub(displayTxt, 1, 1)) .. string.sub(displayTxt, 2)
+    local displayTxt = DFRL:GetOptionLabel(moduleName, key)
     btnTxt:SetText(displayTxt)
     btnTxt:SetTextColor(1, 1, 1)
     btn.text = btnTxt
@@ -693,7 +761,7 @@ function DFRL.tools.CreateDropDown(parent, name, moduleName, key, items, noCall,
 
     local currentValue = DFRL:GetTempDB(moduleName, key)
     if currentValue then
-        btnTxt:SetText(currentValue)
+        btnTxt:SetText(DFRL:TR(currentValue))
     end
 
     if not btn.popup then
@@ -705,12 +773,20 @@ function DFRL.tools.CreateDropDown(parent, name, moduleName, key, items, noCall,
         popup:SetFrameStrata("DIALOG")
         popup:SetToplevel(true)
         popup:EnableMouse(true)
+        popup:SetBackdrop({
+            bgFile = "Interface\\Buttons\\WHITE8X8",
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            tile = true, tileSize = 8, edgeSize = 12,
+            insets = { left = 3, right = 3, top = 3, bottom = 3 }
+        })
+        popup:SetBackdropColor(0.02, 0.02, 0.02, 0.95)
+        popup:SetBackdropBorderColor(1, 0.82, 0, 0.25)
         DFRL.tools.GradientLine(popup, "TOP", 2)
 
         local bg = popup:CreateTexture(nil, "BACKGROUND")
         bg:SetTexture("Interface\\Buttons\\WHITE8X8")
         bg:SetAllPoints(popup)
-        bg:SetVertexColor(0, 0, 0, .8)
+        bg:SetVertexColor(0.02, 0.02, 0.02, .92)
 
         popup:Hide()
         btn.popup = popup
@@ -724,7 +800,7 @@ function DFRL.tools.CreateDropDown(parent, name, moduleName, key, items, noCall,
                 itemBtn.itemText = items[i]
 
                 itemBtn:SetScript("OnClick", function()
-                    btn.text:SetText(this.itemText)
+                    btn.text:SetText(DFRL:TR(this.itemText))
                     if noCall then
                         DFRL:SetTempDBNoCallback(moduleName, key, this.itemText)
                     else
@@ -841,7 +917,13 @@ function DFRL.tools.CreateFontWarner(parent, size, text, colour, pulse, time)
         fontString:SetTextColor(1, 1, 1)
     end
 
-    fontString:SetText(text)
+    fontString.rawText = text
+    fontString:SetText(DFRL:TR(text or ""))
+
+    function fontString:SetLocalizedText(newText)
+        self.rawText = newText
+        self:SetText(DFRL:TR(newText or ""))
+    end
 
     if pulse or time then
         local frame = CreateFrame("Frame")

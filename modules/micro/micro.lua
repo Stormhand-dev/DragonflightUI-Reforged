@@ -20,6 +20,7 @@ DFRL:NewMod("Micro", 1, function()
         pvpButton = nil,
         lftButton = nil,
         ebcButton = nil,
+        ijStandaloneButton = nil,
 
         msText = nil,
         bwText = nil,
@@ -155,6 +156,71 @@ DFRL:NewMod("Micro", 1, function()
         self.ebcButton:SetScript("OnLeave", function()
             GameTooltip:Hide()
         end)
+    end
+
+
+    function Setup:CreateInstanceJournalStandaloneButton()
+        if self.ijStandaloneButton then return end
+
+        self.ijStandaloneButton = CreateFrame("Button", "DFRLIJStandaloneButton", self.microMenuContainer)
+        self.ijStandaloneButton:SetWidth(self.buttonWidth)
+        self.ijStandaloneButton:SetHeight(self.buttonHeight)
+        self.ijStandaloneButton:SetHitRectInsets(0, 0, 0, 0)
+        self.ijStandaloneButton:Show()
+        self.ijStandaloneButton:Enable()
+
+        self.ijStandaloneButton:SetScript("OnClick", function()
+            if _G["InstanceJournal"] and InstanceJournal.ToggleInstanceJournal then
+                InstanceJournal:ToggleInstanceJournal()
+            elseif _G["ToggleInstanceJournal"] then
+                ToggleInstanceJournal()
+            end
+        end)
+
+        self.ijStandaloneButton:SetScript("OnEnter", function()
+            GameTooltip:SetOwner(self.ijStandaloneButton, "ANCHOR_RIGHT")
+            GameTooltip:SetText("Instance Journal", 1, 1, 1)
+            GameTooltip:AddLine("Open the Instance Journal.")
+            GameTooltip:Show()
+        end)
+
+        self.ijStandaloneButton:SetScript("OnLeave", function()
+            GameTooltip:Hide()
+        end)
+    end
+
+    function Setup:PositionInstanceJournalStandaloneButton(spacing)
+        if not self.ijStandaloneButton or not self.buttons or not self.buttons[table.getn(self.buttons)] then return end
+        local lastButton = self.buttons[table.getn(self.buttons)]
+        self.ijStandaloneButton:ClearAllPoints()
+        self.ijStandaloneButton:SetPoint("TOPLEFT", lastButton, "TOPRIGHT", spacing or self.buttonSpacing, 0)
+        self.ijStandaloneButton:SetParent(self.microMenuContainer)
+        self.ijStandaloneButton:SetFrameStrata(lastButton:GetFrameStrata())
+        self.ijStandaloneButton:SetFrameLevel(lastButton:GetFrameLevel())
+    end
+
+    function Setup:ApplyInstanceJournalStandaloneStyle(useColor)
+        if not self.ijStandaloneButton then return end
+        local colorpath = self.texpath .. "color_micro\\"
+        if useColor then
+            self.ijStandaloneButton:SetNormalTexture(colorpath .. "instancejournal-regular.tga")
+            self.ijStandaloneButton:SetPushedTexture(colorpath .. "instancejournal-faded.tga")
+            self.ijStandaloneButton:SetHighlightTexture(colorpath .. "instancejournal-highlight.tga")
+        else
+            self.ijStandaloneButton:SetNormalTexture(colorpath .. "instancejournal-faded.tga")
+            self.ijStandaloneButton:SetPushedTexture(colorpath .. "instancejournal-faded.tga")
+            self.ijStandaloneButton:SetHighlightTexture(colorpath .. "instancejournal-highlight.tga")
+        end
+        if self.ijStandaloneButton:GetNormalTexture() then
+            self.ijStandaloneButton:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+            self.ijStandaloneButton:GetNormalTexture():Show()
+        end
+        if self.ijStandaloneButton:GetPushedTexture() then
+            self.ijStandaloneButton:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+        end
+        if self.ijStandaloneButton:GetHighlightTexture() then
+            self.ijStandaloneButton:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+        end
     end
 
     function Setup:LowLevelTalentButton()
@@ -365,6 +431,9 @@ DFRL:NewMod("Micro", 1, function()
         self:LFTButton()
         self:EBCButton()
         self:ArrangeButtons()
+        self:CreateInstanceJournalStandaloneButton()
+        self:PositionInstanceJournalStandaloneButton(self.buttonSpacing)
+        self:ApplyInstanceJournalStandaloneStyle(DFRL:GetTempDB("Micro", "switchColor"))
         self:HideOtherUI()
 
         self:DisableBlizzardFPS()
@@ -443,6 +512,7 @@ DFRL:NewMod("Micro", 1, function()
             end
 
             DFRL.microMenuContainer:SetWidth((Setup.buttonWidth + value) * table.getn(Setup.buttons))
+            Setup:PositionInstanceJournalStandaloneButton(value)
         end
     end
 
@@ -635,6 +705,7 @@ DFRL:NewMod("Micro", 1, function()
             end
         end
 
+        Setup:ApplyInstanceJournalStandaloneStyle(value)
         callbacks.microColor(DFRL:GetTempDB("Micro", "microColor"))
     end
 

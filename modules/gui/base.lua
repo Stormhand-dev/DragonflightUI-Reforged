@@ -11,21 +11,21 @@ DFRL:NewMod("Gui-base", 2, function()
         path = DFRL:GetInfoOrCons("media"),
 
         CONSTANTS = {
-            MAIN_FRAME_WIDTH = 900,
-            MAIN_FRAME_HEIGHT = 600,
-            TAB_FRAME_WIDTH = 130,
+            MAIN_FRAME_WIDTH = 980,
+            MAIN_FRAME_HEIGHT = 640,
+            TAB_FRAME_WIDTH = 150,
             TITLE_FRAME_HEIGHT = 30,
             SUB_FRAME_HEIGHT = 30,
-            SUB_FRAME_WIDTH = 400,
-            TAB_BUTTON_HEIGHT = 30,
-            TAB_BUTTON_WIDTH = 120,
+            SUB_FRAME_WIDTH = 460,
+            TAB_BUTTON_HEIGHT = 32,
+            TAB_BUTTON_WIDTH = 136,
 
             LEFT_PANEL_RATIO = 1.5,
             RIGHT_PANEL_RATIO = 3,
-            BACKGROUND_ALPHA = 0.8,
-            RIGHT_TEX_DIMMED_ALPHA = 0.4,
+            BACKGROUND_ALPHA = 0.9,
+            RIGHT_TEX_DIMMED_ALPHA = 0.55,
 
-            TAB_VERTICAL_SPACING = 35,
+            TAB_VERTICAL_SPACING = 33,
             TAB_GROUP_SEPARATOR = 20,
             TITLE_FRAME_OFFSET = 200,
             SUB_FRAME_OFFSET = 20,
@@ -35,8 +35,8 @@ DFRL:NewMod("Gui-base", 2, function()
             PULSE_MIN_ALPHA = 0.1,
             PULSE_ALPHA_STEP = 0.02,
 
-            TITLE_FONT_SIZE = 16,
-            TAB_FONT_SIZE = 14,
+            TITLE_FONT_SIZE = 18,
+            TAB_FONT_SIZE = 15,
 
             SCROLL_SPEED = 15,
             SCROLL_STEP_SIZE = 250,
@@ -89,6 +89,31 @@ DFRL:NewMod("Gui-base", 2, function()
         }
     }
 
+    function Setup:ApplyPanelStyle(frame, alpha)
+        if not frame then return end
+        frame:SetBackdrop({
+            bgFile = "Interface\\Buttons\\WHITE8X8",
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            tile = true, tileSize = 8, edgeSize = 12,
+            insets = { left = 3, right = 3, top = 3, bottom = 3 }
+        })
+        frame:SetBackdropColor(0, 0, 0, alpha or self.CONSTANTS.BACKGROUND_ALPHA)
+        frame:SetBackdropBorderColor(1, 0.82, 0, 0.35)
+    end
+
+    function Setup:StyleTabButton(tab, active)
+        if not tab then return end
+        if active then
+            tab.bg:SetVertexColor(0.14, 0.14, 0.14, 0.95)
+            tab.border:SetVertexColor(1, 0.82, 0, 0.75)
+            tab:GetFontString():SetTextColor(1, 0.95, 0.75, 1)
+        else
+            tab.bg:SetVertexColor(0.05, 0.05, 0.05, 0.75)
+            tab.border:SetVertexColor(1, 0.82, 0, 0.18)
+            tab:GetFontString():SetTextColor(0.82, 0.82, 0.82, 1)
+        end
+    end
+
     function Setup:MainFrame()
         if not self.mainFrame then
             self.mainFrame = CreateFrame("Frame", "DFRLMainFrame", UIParent)
@@ -102,6 +127,7 @@ DFRL:NewMod("Gui-base", 2, function()
             self.mainFrame:SetMovable(true)
             self.mainFrame:SetScript("OnMouseDown", function() this:StartMoving() end)
             self.mainFrame:SetScript("OnMouseUp", function() this:StopMovingOrSizing() end)
+            self:ApplyPanelStyle(self.mainFrame, self.CONSTANTS.BACKGROUND_ALPHA)
 
             tinsert(UISpecialFrames, self.mainFrame:GetName()) -- shagutweaks buggs this out, disable when debugging
 
@@ -110,14 +136,14 @@ DFRL:NewMod("Gui-base", 2, function()
             leftTex:SetPoint("TOPLEFT", self.mainFrame, "TOPLEFT", 0, 0)
             leftTex:SetWidth(self.mainFrame:GetWidth() / self.CONSTANTS.LEFT_PANEL_RATIO)
             leftTex:SetHeight(self.mainFrame:GetHeight())
-            leftTex:SetVertexColor(0, 0, 0, self.CONSTANTS.BACKGROUND_ALPHA)
+            leftTex:SetVertexColor(0.02, 0.02, 0.02, self.CONSTANTS.BACKGROUND_ALPHA)
 
             self.rightTex = self.mainFrame:CreateTexture(nil, "BACKGROUND")
             self.rightTex:SetTexture("Interface\\Buttons\\WHITE8X8")
             self.rightTex:SetPoint("TOPRIGHT", self.mainFrame, "TOPRIGHT", 0, 0)
             self.rightTex:SetWidth(self.mainFrame:GetWidth() / self.CONSTANTS.RIGHT_PANEL_RATIO)
             self.rightTex:SetHeight(self.mainFrame:GetHeight())
-            self.rightTex:SetVertexColor(0, 0, 0, self.CONSTANTS.BACKGROUND_ALPHA)
+            self.rightTex:SetVertexColor(0.04, 0.04, 0.04, self.CONSTANTS.BACKGROUND_ALPHA)
 
             T.GradientLine(self.mainFrame, "TOP", 3)
             T.GradientLine(self.mainFrame, "BOTTOM", -3)
@@ -131,10 +157,18 @@ DFRL:NewMod("Gui-base", 2, function()
             self.tabFrame:SetHeight(self.mainFrame:GetHeight() - self.CONSTANTS.TITLE_FRAME_HEIGHT)
             self.tabFrame:SetWidth(self.CONSTANTS.TAB_FRAME_WIDTH)
 
+            self:ApplyPanelStyle(self.tabFrame, self.CONSTANTS.BACKGROUND_ALPHA)
+
             local tex = self.tabFrame:CreateTexture(nil, "BACKGROUND")
             tex:SetTexture("Interface\\Buttons\\WHITE8X8")
             tex:SetAllPoints(self.tabFrame)
-            tex:SetVertexColor(0, 0, 0, self.CONSTANTS.BACKGROUND_ALPHA)
+            tex:SetVertexColor(0.01, 0.01, 0.01, self.CONSTANTS.BACKGROUND_ALPHA)
+
+            self.tabHeader = self.tabFrame:CreateFontString(nil, "OVERLAY")
+            self.tabHeader:SetFont(self.font.. "BigNoodleTitling.ttf", 14, "OUTLINE")
+            self.tabHeader:SetTextColor(1, .82, 0, 1)
+            self.tabHeader:SetPoint("TOP", self.tabFrame, "TOP", 0, -8)
+            self.tabHeader:SetText(DFRL:TR("Navigation"))
         end
     end
 
@@ -147,10 +181,12 @@ DFRL:NewMod("Gui-base", 2, function()
             self.titleFrame:SetFrameStrata("DIALOG")
             self.titleFrame:SetClampedToScreen(true)
             self.titleFrame:SetToplevel(true)
+            self:ApplyPanelStyle(self.titleFrame, self.CONSTANTS.BACKGROUND_ALPHA)
+
             local tex = self.titleFrame:CreateTexture(nil, "BACKGROUND")
             tex:SetTexture("Interface\\Buttons\\WHITE8X8")
             tex:SetAllPoints(self.titleFrame)
-            tex:SetVertexColor(0, 0, 0, self.CONSTANTS.BACKGROUND_ALPHA)
+            tex:SetVertexColor(0.02, 0.02, 0.02, self.CONSTANTS.BACKGROUND_ALPHA)
 
             tinsert(UISpecialFrames, self.titleFrame:GetName())
 
@@ -213,10 +249,12 @@ DFRL:NewMod("Gui-base", 2, function()
             self.subFrame:SetHeight(self.CONSTANTS.SUB_FRAME_HEIGHT)
             self.subFrame:SetWidth(self.CONSTANTS.SUB_FRAME_WIDTH)
 
+            self:ApplyPanelStyle(self.subFrame, self.CONSTANTS.BACKGROUND_ALPHA)
+
             local tex = self.subFrame:CreateTexture(nil, "BACKGROUND")
             tex:SetTexture("Interface\\Buttons\\WHITE8X8")
             tex:SetAllPoints(self.subFrame)
-            tex:SetVertexColor(0, 0, 0, self.CONSTANTS.BACKGROUND_ALPHA)
+            tex:SetVertexColor(0.02, 0.02, 0.02, self.CONSTANTS.BACKGROUND_ALPHA)
 
             self.profileText = self.subFrame:CreateFontString(nil, "OVERLAY")
             self.profileText:SetFont(self.font.. "BigNoodleTitling.ttf", 14, "OUTLINE")
@@ -225,19 +263,25 @@ DFRL:NewMod("Gui-base", 2, function()
 
             local charName = UnitName("player")
             local profileName = DFRL_CUR_PROFILE[charName] or "Default"
-            self.profileText:SetText("Profile:   |cffffffff" .. profileName .. "|r")
+            self.profileText:SetText(DFRL:TR("Profile") .. ":   |cffffffff" .. DFRL:DisplayProfileName(profileName) .. "|r")
 
             self.fpsText = self.subFrame:CreateFontString(nil, "OVERLAY")
             self.fpsText:SetFont(self.font.. "BigNoodleTitling.ttf", 14, "OUTLINE")
             self.fpsText:SetTextColor(1, .82, 0, 1)
             self.fpsText:SetPoint("RIGHT", self.subFrame, "RIGHT", -10, 0)
 
+            self.helpText = self.subFrame:CreateFontString(nil, "OVERLAY")
+            self.helpText:SetFont(self.font.. "BigNoodleTitling.ttf", 11, "OUTLINE")
+            self.helpText:SetTextColor(0.75, 0.75, 0.75, 1)
+            self.helpText:SetPoint("CENTER", self.subFrame, "CENTER", 0, 0)
+            self.helpText:SetText(DFRL:TR("Drag to move - ESC to close"))
+
             self.subFrame:SetScript("OnUpdate", function()
                 if (this.fpsTimer or 0) > GetTime() then return end
                 this.fpsTimer = GetTime() + 0.5
                 DFRL.activeScripts["GUI SubFrame"] = true
-                self.fpsText:SetText("FPS: |cffffffff" .. format("%.1f", GetFramerate()) .. "|r")
-                self.profileText:SetText("Profile:   |cffffffff" .. (DFRL_CUR_PROFILE[UnitName("player")] or "Default") .. "|r")
+                self.fpsText:SetText(DFRL:TR("FPS:") .. " |cffffffff" .. format("%.1f", GetFramerate()) .. "|r")
+                self.profileText:SetText(DFRL:TR("Profile") .. ":   |cffffffff" .. DFRL:DisplayProfileName(DFRL_CUR_PROFILE[UnitName("player")] or "Default") .. "|r")
             end)
 
             self.subFrame:SetScript("OnShow", function()
@@ -257,11 +301,22 @@ DFRL:NewMod("Gui-base", 2, function()
                 tab:SetHeight(self.CONSTANTS.TAB_BUTTON_HEIGHT)
                 tab:SetWidth(self.CONSTANTS.TAB_BUTTON_WIDTH)
 
-                local yOffset = -10 - (i - 1) * self.CONSTANTS.TAB_VERTICAL_SPACING
+                local yOffset = -30 - (i - 1) * self.CONSTANTS.TAB_VERTICAL_SPACING
                 if i > 5 then
                     yOffset = yOffset - self.CONSTANTS.TAB_GROUP_SEPARATOR
                 end
                 tab:SetPoint("TOP", self.tabFrame, "TOP", 0, yOffset)
+
+                local bg = tab:CreateTexture(nil, "BACKGROUND")
+                bg:SetTexture("Interface\\Buttons\\WHITE8X8")
+                bg:SetAllPoints(tab)
+                tab.bg = bg
+
+                local border = tab:CreateTexture(nil, "BORDER")
+                border:SetTexture("Interface\\Buttons\\WHITE8X8")
+                border:SetPoint("TOPLEFT", tab, "TOPLEFT", 2, -2)
+                border:SetPoint("BOTTOMRIGHT", tab, "BOTTOMRIGHT", -2, 2)
+                tab.border = border
 
                 local highlight = tab:CreateTexture(nil, "OVERLAY")
                 highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
@@ -275,7 +330,7 @@ DFRL:NewMod("Gui-base", 2, function()
                 text:SetTextColor(.7, .7, .7, 1)
                 text:SetPoint("CENTER", tab, "CENTER")
                 tab:SetFontString(text)
-                tab:SetText(Setup.tabs[i])
+                tab:SetText(DFRL:TR(Setup.tabs[i]))
 
                 local tabIndex = i
                 tab:SetScript("OnClick", function()
@@ -285,19 +340,24 @@ DFRL:NewMod("Gui-base", 2, function()
                 tab:SetScript("OnEnter", function()
                     if tabIndex ~= self.selectedTab then
                         tab.highlight:Show()
+                        tab.bg:SetVertexColor(0.10, 0.10, 0.10, 0.92)
+                        tab.border:SetVertexColor(1, 0.82, 0, 0.45)
                     end
                 end)
 
                 tab:SetScript("OnLeave", function()
                     if tabIndex ~= self.selectedTab then
                         tab.highlight:Hide()
+                        self:StyleTabButton(tab, false)
                     end
                 end)
 
+                self:StyleTabButton(tab, false)
                 self.tabButtons[i] = tab
             end
             self.tabButtons[13]:Disable()
             self.tabButtons[13]:GetFontString():SetTextColor(.4, .4, .4, 1)
+            if self.tabButtons[13].border then self.tabButtons[13].border:SetVertexColor(0.4, 0.4, 0.4, 0.1) end
             self.tabsCreated = true
         end
     end
@@ -305,10 +365,11 @@ DFRL:NewMod("Gui-base", 2, function()
     function Setup:SelectTab(tabIndex)
         for i = 1, table.getn(self.tabs) do
             self.tabButtons[i].highlight:Hide()
+            self:StyleTabButton(self.tabButtons[i], false)
         end
 
-
         self.tabButtons[tabIndex].highlight:Show()
+        self:StyleTabButton(self.tabButtons[tabIndex], true)
         self.selectedTab = tabIndex
 
 
@@ -346,7 +407,7 @@ DFRL:NewMod("Gui-base", 2, function()
             self.slider:Show()
         end
         if tabIndex ~= 1 then
-            self.panelTitle:SetText(self.tabs[tabIndex])
+            self.panelTitle:SetText(DFRL:TR(self.tabs[tabIndex]))
         else
             self.panelTitle:SetText("")
         end
@@ -468,9 +529,9 @@ DFRL:NewMod("Gui-base", 2, function()
     function Setup:PanelTitles()
         if not self.panelTitle then
             self.panelTitle = self.mainFrame:CreateFontString(nil, "OVERLAY")
-            self.panelTitle:SetFont(self.font.. "BigNoodleTitling.ttf", 18, "OUTLINE")
+            self.panelTitle:SetFont(self.font.. "BigNoodleTitling.ttf", 22, "OUTLINE")
             self.panelTitle:SetTextColor(1, .82, 0, 1)
-            self.panelTitle:SetPoint("TOP", self.scrollFrame, "TOP", -20, 25)
+            self.panelTitle:SetPoint("TOP", self.scrollFrame, "TOP", -20, 28)
 
         end
     end
