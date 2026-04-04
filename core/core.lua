@@ -18,6 +18,7 @@ DFRL.callbacks = {}
 DFRL.performance = {}
 DFRL.activeScripts = {}
 DFRL.gui = {}
+DFRL.debug = {}
 
 -- db version
 DFRL.DBversion = "1.0"
@@ -180,6 +181,9 @@ end
 
 function DFRL:SetTempDB(mod, key, value)
     self.tempDB[mod][key] = value
+    if self.DebugLog then
+        self:DebugLog('db', 'SetTempDB', mod, key, value)
+    end
     local cb = mod .. "_" .. key .. "_changed"
     self:TriggerCallback(cb, value)
 end
@@ -234,6 +238,9 @@ end
 function DFRL:SwitchProfile(name)
     local char = UnitName("player")
     local old = DFRL_CUR_PROFILE[char]
+    if self.DebugLog then
+        self:DebugLog('profile', 'SwitchProfile', old or 'nil', '->', name or 'nil')
+    end
     DFRL_PROFILES[old] = self.tempDB
     DFRL_CUR_PROFILE[char] = name
     self:LoadProfile(name)
@@ -256,6 +263,9 @@ function DFRL:CopyProfile(from, tbl)
 end
 
 function DFRL:LoadProfile(name)
+    if self.DebugLog then
+        self:DebugLog('profile', 'LoadProfile', name or 'nil')
+    end
     self.tempDB = {}
     for mod, data in pairs(DFRL_PROFILES[name]) do
         self.tempDB[mod] = {}
@@ -278,6 +288,10 @@ function DFRL:NewCallbacks(mod, callbacks)
         self.callbacks[cb] = {}
         tinsert(self.callbacks[cb], func)
 
+        if self.DebugLog then
+            self:DebugLog('callback', 'Register', cb)
+        end
+
         self:TriggerCallback(cb, self.tempDB[mod][key])
 
         count = count + 1
@@ -285,18 +299,52 @@ function DFRL:NewCallbacks(mod, callbacks)
 end
 
 function DFRL:TriggerCallback(cb, value)
+    if not self.callbacks[cb] then return end
+    if self.DebugLog then
+        self:DebugLog('callback', 'Trigger', cb, value)
+    end
     for _, func in ipairs(self.callbacks[cb]) do
         func(value)
     end
 end
 
 function DFRL:TriggerAllCallbacks()
-    for cb, callbacks in pairs(self.callbacks) do
+    local ordered = {}
+    for cb in pairs(self.callbacks) do
+        tinsert(ordered, cb)
+    end
+
+    table.sort(ordered, function(a, b)
+        local aGrid = string.find(a, 'Grid_changed$') ~= nil
+        local bGrid = string.find(b, 'Grid_changed$') ~= nil
+        if aGrid ~= bGrid then
+            return aGrid
+        end
+
+        local aSpacing = string.find(a, 'Spacing_changed$') ~= nil
+        local bSpacing = string.find(b, 'Spacing_changed$') ~= nil
+        if aSpacing ~= bSpacing then
+            return not aSpacing
+        end
+
+        return a < b
+    end)
+
+    if self.DebugLog then
+        self:DebugLog('callback', 'TriggerAllCallbacks', table.getn(ordered))
+    end
+
+    for _, cb in ipairs(ordered) do
+        local callbacks = self.callbacks[cb]
         local name = string.gsub(cb, "_changed$", "")
         local pos = string.find(name, "_[^_]*$")
         local mod = string.sub(name, 1, pos - 1)
         local key = string.sub(name, pos + 1)
         local value = self.tempDB[mod] and self.tempDB[mod][key]
+
+        if self.DebugLog then
+            self:DebugLog('callback', 'TriggerAll', cb, value)
+        end
 
         for _, func in ipairs(callbacks) do
             func(value)

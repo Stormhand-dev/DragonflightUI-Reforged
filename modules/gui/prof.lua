@@ -44,10 +44,10 @@ DFRL:NewMod("Gui-prof", 4, function()
             switchBtns = {},
             newProfileBtn = nil,
             resetBtn = nil,
+            saveBtn = nil,
             warner = nil
         }
     }
-
 
     function Setup:ListFrame()
         if not self.headers then
@@ -56,13 +56,13 @@ DFRL:NewMod("Gui-prof", 4, function()
         end
 
         if not self.ui.usageText then
-            self.ui.usageText = DFRL.tools.CreateFont(panel, 14, "Usage:\n\n\n1) new profile: create and switch to a new profile\n\n2) switch: change active profile\n\n3) copy: copies all settings into active profile\n\n4) delete: delete profile and switch back to default\n\n5)reset: reset active profile to the default settings\n\n\ndoes not affect shagutweaks\n\nBUG: DOUBLE CLICK DELETE AFTER NEW PROFILE\n\nBUG: ENTER PROFILE NAME STAYS", {.5, .5, .5}, "LEFT")
+            self.ui.usageText = DFRL.tools.CreateFont(panel, 14, "Profiles help text", {.65, .65, .65}, "LEFT")
             self.grid:AddElement(5, 4, self.ui.usageText)
         end
         if not self.ui.frame then
             self.ui.frame = CreateFrame("Frame", nil, panel)
-            self.ui.frame:SetWidth(300)
-            self.ui.frame:SetHeight(400)
+            self.ui.frame:SetWidth(320)
+            self.ui.frame:SetHeight(420)
             self.grid:AddElement(2, 3, self.ui.frame)
             T.GradientLine(self.ui.frame, "TOP", 20, 2)
             T.GradientLine(self.ui.frame, "TOP", 60, 2)
@@ -76,7 +76,7 @@ DFRL:NewMod("Gui-prof", 4, function()
             self.ui.curText:SetFont(self.font .. "BigNoodleTitling.ttf", self.TEXT_SIZE, "OUTLINE")
             self.ui.curText:SetPoint("TOPLEFT", self.ui.frame, "TOPLEFT", 10, -10)
         end
-        self.ui.curText:SetText("Current:   |cff80ff80" .. curProf .. "|r")
+        self.ui.curText:SetText(DFRL:TR("Current") .. ":   |cff80ff80" .. DFRL:DisplayProfileName(curProf) .. "|r")
         for _, text in pairs(self.ui.texts) do
             text:Hide()
         end
@@ -113,12 +113,12 @@ DFRL:NewMod("Gui-prof", 4, function()
             local text = self.ui.frame:CreateFontString(nil, "OVERLAY")
             text:SetFont(self.font .. "BigNoodleTitling.ttf", self.TEXT_SIZE, "OUTLINE")
             text:SetPoint("TOPLEFT", self.ui.frame, "TOPLEFT", 10, yOffset)
-            text:SetText(name)
+            text:SetText(DFRL:DisplayProfileName(name))
             table.insert(self.ui.texts, text)
             if name ~= "Default" then
                 local profName = name
-                local switchBtn = DFRL.tools.CreateButton(self.ui.frame, "Switch", 50, 20, true, {0.5, 1, 0.5})
-                switchBtn:SetPoint("TOPLEFT", self.ui.frame, "TOPLEFT", 125, yOffset)
+                local switchBtn = DFRL.tools.CreateButton(self.ui.frame, "Switch", 55, 20, true, {0.5, 1, 0.5})
+                switchBtn:SetPoint("TOPLEFT", self.ui.frame, "TOPLEFT", 135, yOffset)
                 switchBtn.profName = profName
                 switchBtn:SetScript("OnClick", function()
                     local clickedName = this.profName
@@ -132,13 +132,17 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(0, 1, 0)
-                    Setup.ui.warner:SetText("switched to " .. clickedName)
+                    if DFRL:IsFrench() then
+                        Setup.ui.warner:SetText(DFRL:TR("switched to") .. " " .. clickedName)
+                    else
+                        Setup.ui.warner:SetText("switched to " .. clickedName)
+                    end
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                 end)
                 table.insert(self.ui.switchBtns, switchBtn)
-                local copyBtn = DFRL.tools.CreateButton(self.ui.frame, "Copy", 50, 20, true)
-                copyBtn:SetPoint("TOPLEFT", self.ui.frame, "TOPLEFT", 180, yOffset)
+                local copyBtn = DFRL.tools.CreateButton(self.ui.frame, "Copy", 55, 20, true)
+                copyBtn:SetPoint("TOPLEFT", self.ui.frame, "TOPLEFT", 195, yOffset)
                 copyBtn.profName = profName
                 copyBtn:SetScript("OnClick", function()
                     local clickedName = this.profName
@@ -152,13 +156,17 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(1, 1, 0)
-                    Setup.ui.warner:SetText("profile copied from " .. clickedName)
+                    if DFRL:IsFrench() then
+                        Setup.ui.warner:SetText(DFRL:TR("profile copied from") .. " " .. clickedName)
+                    else
+                        Setup.ui.warner:SetText("profile copied from " .. clickedName)
+                    end
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                 end)
                 table.insert(self.ui.copyBtns, copyBtn)
-                local delBtn = DFRL.tools.CreateButton(self.ui.frame, "Delete", 50, 20, true, {1, 0.5, 0.5})
-                delBtn:SetPoint("TOPLEFT", self.ui.frame, "TOPLEFT", 235, yOffset)
+                local delBtn = DFRL.tools.CreateButton(self.ui.frame, "Delete", 55, 20, true, {1, 0.5, 0.5})
+                delBtn:SetPoint("TOPLEFT", self.ui.frame, "TOPLEFT", 255, yOffset)
                 delBtn.profName = profName
                 delBtn:SetScript("OnClick", function()
                     local clickedName = this.profName
@@ -171,7 +179,11 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(1, 0, 0)
-                    Setup.ui.warner:SetText(clickedName .. " deleted")
+                    if DFRL:IsFrench() then
+                        Setup.ui.warner:SetText(clickedName .. " " .. DFRL:TR("deleted"))
+                    else
+                        Setup.ui.warner:SetText(clickedName .. " deleted")
+                    end
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                 end)
@@ -180,7 +192,6 @@ DFRL:NewMod("Gui-prof", 4, function()
 
             yOffset = yOffset - 20
         end
-
 
     end
 
@@ -219,8 +230,13 @@ DFRL:NewMod("Gui-prof", 4, function()
     end
 
     function Setup:ExtraButtons()
+        if not self.ui.actionsHeader then
+            self.ui.actionsHeader = DFRL.tools.CreateCategoryHeader(panel, "Quick Actions", false, 150, 24, 14)
+            self.ui.actionsHeader:SetPoint("BOTTOMLEFT", self.ui.frame, "TOPRIGHT", 10, -22)
+        end
+
         if not self.ui.newProfileBtn then
-            self.ui.newProfileBtn = DFRL.tools.CreateButton(panel, "New Profile", 100, 30, true)
+            self.ui.newProfileBtn = DFRL.tools.CreateButton(panel, "New Profile", 130, 30, true)
             self.ui.newProfileBtn:SetPoint("TOPLEFT", self.ui.frame, "TOPRIGHT", 20, -25)
             self.ui.newProfileBtn:SetScript("OnClick", function()
                 local count = 0
@@ -233,7 +249,7 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(1, 0, 0)
-                    Setup.ui.warner:SetText("MAX PROFILES REACHED")
+                    Setup.ui.warner:SetText(DFRL:TR("MAX PROFILES REACHED"))
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                     return
@@ -259,7 +275,7 @@ DFRL:NewMod("Gui-prof", 4, function()
                                 Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                             end
                             Setup.ui.warner:SetTextColor(0, 1, 0)
-                            Setup.ui.warner:SetText("new profile created")
+                            Setup.ui.warner:SetText(DFRL:TR("new profile created"))
                             Setup.ui.warner:Show()
                             Setup:RestartWarnerPulse()
                         end
@@ -275,7 +291,7 @@ DFRL:NewMod("Gui-prof", 4, function()
 
         end
         if not self.ui.resetBtn then
-            self.ui.resetBtn = DFRL.tools.CreateButton(panel, "Reset", 100, 30, true, {1, 0.5, 0.5})
+            self.ui.resetBtn = DFRL.tools.CreateButton(panel, "Reset", 130, 30, true, {1, 0.5, 0.5})
             self.ui.resetBtn:SetPoint("TOPLEFT", self.ui.newProfileBtn, "BOTTOMLEFT", 0, -10)
             self.ui.resetBtn:SetScript("OnClick", function()
                 local success, _ = pcall(function()
@@ -288,7 +304,7 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(0, 1, 0)
-                    Setup.ui.warner:SetText("CURRENT PROFILE RESET")
+                    Setup.ui.warner:SetText(DFRL:TR("CURRENT PROFILE RESET"))
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                 else
@@ -297,12 +313,27 @@ DFRL:NewMod("Gui-prof", 4, function()
                         Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
                     end
                     Setup.ui.warner:SetTextColor(1, 0, 0)
-                    Setup.ui.warner:SetText("PROFILE RESET FAILED")
+                    Setup.ui.warner:SetText(DFRL:TR("PROFILE RESET FAILED"))
                     Setup.ui.warner:Show()
                     Setup:RestartWarnerPulse()
                 end
             end)
 
+        end
+        if not self.ui.saveBtn then
+            self.ui.saveBtn = DFRL.tools.CreateButton(panel, "Save Profile", 130, 30, true, {0.5, 1, 0.5})
+            self.ui.saveBtn:SetPoint("TOPLEFT", self.ui.resetBtn, "BOTTOMLEFT", 0, -10)
+            self.ui.saveBtn:SetScript("OnClick", function()
+                DFRL:SaveTempDB()
+                if not Setup.ui.warner then
+                    Setup.ui.warner = DFRL.tools.CreateFontWarner(panel, 14, "", {0, 1, 0}, true, 3)
+                    Setup.ui.warner:SetPoint("TOP", Setup.ui.frame, "BOTTOM", 0, 25)
+                end
+                Setup.ui.warner:SetTextColor(0, 1, 0)
+                Setup.ui.warner:SetText(DFRL:TR("profile saved"))
+                Setup.ui.warner:Show()
+                Setup:RestartWarnerPulse()
+            end)
         end
     end
 

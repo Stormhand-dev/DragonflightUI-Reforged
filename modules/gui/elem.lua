@@ -31,11 +31,11 @@ DFRL:NewMod("Gui-elem", 3, function()
         tabPositions = {},
         configCache = {},
 
-        DESCRIPTION_FONT_SIZE = 15,
-        EXTRA_DESCRIPTION_FONT_SIZE = 11,
-        VALUE_FONT_SIZE = 14,
+        DESCRIPTION_FONT_SIZE = 16,
+        EXTRA_DESCRIPTION_FONT_SIZE = 12,
+        VALUE_FONT_SIZE = 15,
 
-        MODULE_TOP_SPACING = 40,
+        MODULE_TOP_SPACING = 44,
         MODULE_BOTTOM_SPACING = 40,
         HEADER_TOP_SPACING = 40,
         HEADER_BOTTOM_SPACING = 25,
@@ -287,14 +287,14 @@ DFRL:NewMod("Gui-elem", 3, function()
                             local descLabel = scrollChild:CreateFontString(nil, "BACKGROUND")
                             descLabel:SetFont(self.font .. "BigNoodleTitling.ttf", self.DESCRIPTION_FONT_SIZE, "OUTLINE")
                             descLabel:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 10, currentY - 3)
-                            descLabel:SetText(data.description or "")
+                            descLabel:SetText(DFRL:TR(data.description or ""))
                             descLabel:SetTextColor(.9,.9,.9)
 
                             if data.extraDescription then
                                 local extraDescLabel = scrollChild:CreateFontString(nil, "BACKGROUND")
                                 extraDescLabel:SetFont(self.font .. "BigNoodleTitling.ttf", self.EXTRA_DESCRIPTION_FONT_SIZE, "OUTLINE")
                                 extraDescLabel:SetPoint("LEFT", descLabel, "RIGHT", 10, 0)
-                                extraDescLabel:SetText(data.extraDescription)
+                                extraDescLabel:SetText(DFRL:TR(data.extraDescription))
                                 extraDescLabel:SetTextColor(1, 0.5, 0.5)
                                 self.extraDescriptionLabels[elementName] = extraDescLabel
                             end
@@ -348,14 +348,14 @@ DFRL:NewMod("Gui-elem", 3, function()
                             local descLabel = scrollChild:CreateFontString(nil, "BACKGROUND")
                             descLabel:SetFont(self.font .. "BigNoodleTitling.ttf", self.DESCRIPTION_FONT_SIZE, "OUTLINE")
                             descLabel:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 10, currentY - 6)
-                            descLabel:SetText(data.description or "")
+                            descLabel:SetText(DFRL:TR(data.description or ""))
                             descLabel:SetTextColor(.9,.9,.9)
 
                             if data.extraDescription then
                                 local extraDescLabel = scrollChild:CreateFontString(nil, "BACKGROUND")
                                 extraDescLabel:SetFont(self.font .. "BigNoodleTitling.ttf", self.EXTRA_DESCRIPTION_FONT_SIZE, "OUTLINE")
                                 extraDescLabel:SetPoint("LEFT", descLabel, "RIGHT", 10, 0)
-                                extraDescLabel:SetText(data.extraDescription)
+                                extraDescLabel:SetText(DFRL:TR(data.extraDescription))
                                 extraDescLabel:SetTextColor(1, 0.5, 0.5)
                                 self.extraDescriptionLabels[elementKey] = extraDescLabel
                             end
@@ -434,14 +434,14 @@ DFRL:NewMod("Gui-elem", 3, function()
                             local descLabel = scrollChild:CreateFontString(nil, "BACKGROUND")
                             descLabel:SetFont(self.font .. "BigNoodleTitling.ttf", self.DESCRIPTION_FONT_SIZE, "OUTLINE")
                             descLabel:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 10, currentY - 10)
-                            descLabel:SetText(data.description or "")
+                            descLabel:SetText(DFRL:TR(data.description or ""))
                             descLabel:SetTextColor(.9,.9,.9)
 
                             if data.extraDescription then
                                 local extraDescLabel = scrollChild:CreateFontString(nil, "BACKGROUND")
                                 extraDescLabel:SetFont(self.font .. "BigNoodleTitling.ttf", self.EXTRA_DESCRIPTION_FONT_SIZE, "OUTLINE")
                                 extraDescLabel:SetPoint("LEFT", descLabel, "RIGHT", 10, 0)
-                                extraDescLabel:SetText(data.extraDescription)
+                                extraDescLabel:SetText(DFRL:TR(data.extraDescription))
                                 extraDescLabel:SetTextColor(1, 0.5, 0.5)
                                 self.extraDescriptionLabels[elementKey] = extraDescLabel
                             end
@@ -495,14 +495,14 @@ DFRL:NewMod("Gui-elem", 3, function()
                             local descLabel = scrollChild:CreateFontString(nil, "BACKGROUND")
                             descLabel:SetFont(self.font .. "BigNoodleTitling.ttf", self.DESCRIPTION_FONT_SIZE, "OUTLINE")
                             descLabel:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 10, currentY - 6)
-                            descLabel:SetText(data.description or "")
+                            descLabel:SetText(DFRL:TR(data.description or ""))
                             descLabel:SetTextColor(.9,.9,.9)
 
                             if data.extraDescription then
                                 local extraDescLabel = scrollChild:CreateFontString(nil, "BACKGROUND")
                                 extraDescLabel:SetFont(self.font .. "BigNoodleTitling.ttf", self.EXTRA_DESCRIPTION_FONT_SIZE, "OUTLINE")
                                 extraDescLabel:SetPoint("LEFT", descLabel, "RIGHT", 10, 0)
-                                extraDescLabel:SetText(data.extraDescription)
+                                extraDescLabel:SetText(DFRL:TR(data.extraDescription))
                                 extraDescLabel:SetTextColor(1, 0.5, 0.5)
                                 self.extraDescriptionLabels[elementKey] = extraDescLabel
                             end
