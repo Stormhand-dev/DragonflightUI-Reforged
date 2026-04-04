@@ -123,9 +123,29 @@ DFRL:NewMod("Micro", 1, function()
         self.ebcButton:Show()
         self.ebcButton:Enable()
         self.ebcButton:SetScript("OnClick", function()
+            if not EBCMinimapDropdown then return end
+
             EBCMinimapDropdown:ClearAllPoints()
+            EBCMinimapDropdown:SetParent(UIParent)
             EBCMinimapDropdown:SetPoint("CENTER", self.ebcButton, 0, 65)
+
             ShowEBCMinimapDropdown()
+
+            EBCMinimapDropdown:SetFrameStrata("TOOLTIP")
+            EBCMinimapDropdown:SetFrameLevel(200)
+            EBCMinimapDropdown:Raise()
+
+            local children = {EBCMinimapDropdown:GetChildren()}
+            for i = 1, table.getn(children) do
+                local child = children[i]
+                if child then
+                    child:SetFrameStrata("TOOLTIP")
+                    child:SetFrameLevel(200 + i)
+                    if child.Raise then
+                        child:Raise()
+                    end
+                end
+            end
         end)
         self.ebcButton:SetScript("OnEnter", function()
             GameTooltip:SetOwner(self.ebcButton, "ANCHOR_RIGHT")
