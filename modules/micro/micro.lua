@@ -329,9 +329,9 @@ DFRL:NewMod("Micro", 1, function()
             this.tick = GetTime() + 2
 
             local _, _, latencyHome = GetNetStats()
-            if latencyHome < 100 then
+            if latencyHome < 200 then
                 self.latencyTexture:SetTexture(self.texpath.. "LatencyGreen.tga")
-            elseif latencyHome < 200 then
+            elseif latencyHome < 300 then
                 self.latencyTexture:SetTexture(self.texpath.. "LatencyYellow.tga")
             else
                 self.latencyTexture:SetTexture(self.texpath.. "LatencyRed.tga")
