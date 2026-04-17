@@ -211,7 +211,7 @@ end
     function Setup:NameText()
         local cfg = self.texts.config
         PlayerFrame.name:ClearAllPoints()
-        PlayerFrame.name:SetPoint("LEFT", PlayerFrame, "LEFT", 80, 25)
+        PlayerFrame.name:SetPoint("LEFT", PlayerFrame, "LEFT", 85, 25)
         PlayerFrame.name:SetFont(cfg.font, cfg.nameFontSize, cfg.outline)
         PlayerFrame.name:SetTextColor(unpack(cfg.nameColor))
     end
