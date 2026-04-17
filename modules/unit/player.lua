@@ -2,7 +2,7 @@ DFRL:NewDefaults("Player", {
     enabled = {true},
     playerDarkMode = {0, "slider", {0, 1}, nil, "Appearance", 1, "Adjust dark mode intensity", nil, nil},
     playerColor = {{1, 1, 1}, "colour", nil, nil, "Appearance", 2, "Change player color", nil, nil},
-    eliteBorder = {"standard", "dropdown", {"standard", "rare", "elite", "rare-elite", "boss", "dfrl evolved", "dfrl nebula"}, nil, "Appearance", 3, "Changes the texture of the playerframe", nil, nil},
+    eliteBorder = {"standard", "dropdown", {"standard", "rare", "elite", "rare-elite", "boss", "dfrl gold", "dfrl silver", "dfrl bronze"}, nil, "Appearance", 3, "Changes the texture of the playerframe", nil, nil},
     frameScale = {1, "slider", {0.7, 1.3}, nil, "Appearance", 4, "Adjust frame size", nil, nil},
     classPortrait = {false, "checkbox", nil, nil, "Appearance", 5, "Activate 2D class portrait icons", nil, nil},
     frameHide = {false, "checkbox", nil, nil, "Appearance", 6, "Hide frame at full HP when not in combat", nil, nil},
@@ -924,10 +924,12 @@ end
             tex = Setup.texpath .. "UI-TargetingFrame-RareElite.blp"
         elseif value == "boss" then
             tex = Setup.texpath .. "UI-TargetingFrame-Boss.blp"
-        elseif value == "dfrl nebula" then
+        elseif value == "dfrl bronze" then
             tex = Setup.texpath .. "guzruul_nebula_v1.tga"
-        elseif value == "dfrl evolved" then
+        elseif value == "dfrl gold" then
             tex = Setup.texpath .. "guzruul_evolved_v1.tga"
+        elseif value == "dfrl silver" then
+            tex = Setup.texpath .. "guzruul_evolved_v2.tga"
         else
             tex = Setup.texpath .. "UI-TargetingFrameDF.blp"
         end
