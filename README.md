@@ -6,7 +6,7 @@ Born from the foundations of Dragonflight: Reloaded, this project is not a simpl
 
 This is a UI shaped by restraint, precision, and intent — where modern clarity meets the timeless soul of World of Warcraft.
 
-Made for Turtle WoW.
+Made for World of Warcraft Vanilla Client 1.12.
 
 <br>
 
