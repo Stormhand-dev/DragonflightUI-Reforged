@@ -94,8 +94,38 @@ end)
             drBtn:SetPoint("TOP", self.menuframe, "TOP", 0, -self.space)
             drBtn:SetScript("OnClick", function()
                 self.menuframe:Hide()
-                _G.SlashCmdList["DFRL"]()
+                local Base = DFRL.gui and DFRL.gui.Base
+                if not Base or not Base.mainFrame then return end
 
+                if Base.mainFrame:IsShown() and Base.mainFrame:GetAlpha() > 0
+                and Base.titleFrame:IsShown() and Base.titleFrame:GetAlpha() > 0 then
+                    UIFrameFadeOut(Base.mainFrame, 0.3, 1, 0)
+                    UIFrameFadeOut(Base.titleFrame, 0.3, 1, 0)
+                    if Base.mainFrame.fadeInfo then
+                        Base.mainFrame.fadeInfo.finishedFunc = Base.mainFrame.Hide
+                        Base.mainFrame.fadeInfo.finishedArg1 = Base.mainFrame
+                    end
+                    if Base.titleFrame.fadeInfo then
+                        Base.titleFrame.fadeInfo.finishedFunc = function() Base.titleFrame:Hide() end
+                    end
+                elseif Base.titleFrame:IsShown() and Base.titleFrame:GetAlpha() > 0
+                and (not Base.mainFrame:IsShown() or Base.mainFrame:GetAlpha() == 0) then
+                    UIFrameFadeOut(Base.titleFrame, 0.3, 1, 0)
+                    if Base.titleFrame.fadeInfo then
+                        Base.titleFrame.fadeInfo.finishedFunc = function() Base.titleFrame:Hide() end
+                    end
+                else
+                    Base.mainFrame.fadeInfo = nil
+                    Base.titleFrame.fadeInfo = nil
+                    Base.mainFrame:SetAlpha(0)
+                    Base.titleFrame:SetAlpha(0)
+                    Base.mainFrame:Show()
+                    Base.titleFrame:Show()
+                    Base.mainFrame:ClearAllPoints()
+                    Base.mainFrame:SetPoint("CENTER", UIParent, "CENTER", 40, 50)
+                    UIFrameFadeIn(Base.mainFrame, 0.3, 0, 1)
+                    UIFrameFadeIn(Base.titleFrame, 0.3, 0, 1)
+                end
             end)
 
             local addonsBtn = DFRL.tools.CreateButton(self.menuframe, "Addon Manager", self.btnw, self.btnh)
@@ -109,13 +139,21 @@ end)
 
             local donationBtn = DFRL.tools.CreateButton(self.menuframe, "|cFFFFD100Donation Rewards", self.btnw, self.btnh)
             donationBtn:SetPoint("TOP", addonsBtn, "BOTTOM", 0, -self.space)
-            donationBtn:SetScript("OnClick", function()
-                self.menuframe:Hide()
-                 ShopFrame_Toggle()
-            end)
+            if ShopFrame_Toggle then
+                donationBtn:SetScript("OnClick", function()
+                    self.menuframe:Hide()
+                    ShopFrame_Toggle()
+                end)
+            else
+                donationBtn:Hide()
+            end
 
             local videoBtn = DFRL.tools.CreateButton(self.menuframe, "Options", self.btnw, self.btnh)
-            videoBtn:SetPoint("TOP", donationBtn, "BOTTOM", 0, -self.space)
+            if ShopFrame_Toggle then
+                videoBtn:SetPoint("TOP", donationBtn, "BOTTOM", 0, -self.space)
+            else
+                videoBtn:SetPoint("TOP", addonsBtn, "BOTTOM", 0, -self.space)
+            end
             videoBtn:SetScript("OnClick", function()
                 self.menuframe:Hide()
                 ShowUIPanel(OptionsFrame)
