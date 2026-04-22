@@ -199,8 +199,15 @@ DFRL:NewMod("Map", 1, function()
             BuffButton16:ClearAllPoints()
             BuffButton16:SetPoint("TOPRIGHT", Setup.topPanel, "TOPLEFT", -50, -150)
 
-	    BuffButton32:ClearAllPoints()
-            BuffButton32:SetPoint("TOPRIGHT", Setup.topPanel, "TOPLEFT", -50, -200)
+            if BuffButton24 then
+                BuffButton24:ClearAllPoints()
+                BuffButton24:SetPoint("TOPRIGHT", Setup.topPanel, "TOPLEFT", -50, -200)
+            end
+
+            if BuffButton32 then
+                BuffButton32:ClearAllPoints()
+                BuffButton32:SetPoint("TOPRIGHT", Setup.topPanel, "TOPLEFT", -50, -200)
+            end
         end
 
         function Setup:Tracker()
@@ -232,6 +239,7 @@ DFRL:NewMod("Map", 1, function()
         end
 
         function Setup:LFT()
+            if not LFTMinimapButton then return end
             LFTMinimapButton:Hide()
             LFTMinimapButton:ClearAllPoints()
             LFTMinimapButton:SetParent(Minimap)
