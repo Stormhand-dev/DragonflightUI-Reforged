@@ -13,6 +13,7 @@ DFRL:NewMod("UpdateNotifier", 1, function()
         txt2 = nil,
         dd = nil,
         btn = nil,
+        closeBtn = nil,
     }
 
     function Setup:ParseDate(dateStr)
@@ -101,6 +102,36 @@ DFRL:NewMod("UpdateNotifier", 1, function()
                 DFRL_DB_SETUP.lastVersionCheck.date = date("%d/%m/%Y")
                 DFRL.tools.MoveFrame(self.frame, 0, 1, .3, 120)
             end)
+        end
+
+        if not self.closeBtn then
+            self.closeBtn = CreateFrame("Button", nil, self.frame)
+            self.closeBtn:SetWidth(18)
+            self.closeBtn:SetHeight(18)
+            self.closeBtn:SetPoint("TOPRIGHT", self.frame, "TOPRIGHT", -6, -6)
+            self.closeBtn:SetFrameStrata(self.frame:GetFrameStrata())
+
+            self.closeBtn.text = self.closeBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            self.closeBtn.text:SetAllPoints()
+            self.closeBtn.text:SetText("X")
+
+            self.closeBtn:SetScript("OnEnter", function()
+                if self.closeBtn.text then
+                    self.closeBtn.text:SetTextColor(1, 0.2, 0.2)
+                end
+            end)
+
+            self.closeBtn:SetScript("OnLeave", function()
+                if self.closeBtn.text then
+                    self.closeBtn.text:SetTextColor(1, 0.82, 0)
+                end
+            end)
+
+            self.closeBtn:SetScript("OnClick", function()
+                DFRL.tools.MoveFrame(self.frame, 0, 1, .3, 120)
+            end)
+
+            self.closeBtn.text:SetTextColor(1, 0.82, 0)
         end
     end
 
