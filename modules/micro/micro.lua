@@ -59,6 +59,9 @@ DFRL:NewMod("Micro", 1, function()
             MainMenuMicroButton,
             HelpMicroButton,
         }
+        self.worldMapBtn  = WorldMapMicroButton
+        self.mainMenuBtn  = MainMenuMicroButton
+        self.helpBtn      = HelpMicroButton
         for _, button in ipairs(self.buttons) do
             if button then
                 button:Show()
@@ -76,9 +79,9 @@ DFRL:NewMod("Micro", 1, function()
         self.pvpButton:Show()
         self.pvpButton:Enable()
         self.pvpButton:SetScript("OnClick", function()
-            if BattlefieldFrame:IsVisible() then
+            if BattlefieldFrame and BattlefieldFrame:IsVisible() then
                 ToggleGameMenu()
-            else
+            elseif ShowTWBGQueueMenu then
                 ShowTWBGQueueMenu()
             end
         end)
@@ -208,9 +211,21 @@ DFRL:NewMod("Micro", 1, function()
         for i, button in ipairs(self.buttons) do
             table.insert(newButtons, button)
             if i == 5 then
-                table.insert(newButtons, self.pvpButton)
-                table.insert(newButtons, self.lftButton)
-                table.insert(newButtons, self.ebcButton)
+                if ShowTWBGQueueMenu then
+                    table.insert(newButtons, self.pvpButton)
+                else
+                    self.pvpButton:Hide()
+                end
+                if LFT_Toggle then
+                    table.insert(newButtons, self.lftButton)
+                else
+                    self.lftButton:Hide()
+                end
+                if ShowEBCMinimapDropdown then
+                    table.insert(newButtons, self.ebcButton)
+                else
+                    self.ebcButton:Hide()
+                end
             end
         end
         self.buttons = newButtons
@@ -488,58 +503,60 @@ DFRL:NewMod("Micro", 1, function()
                 Setup.buttons[5]:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
             end
 
-            if Setup.buttons[6] then
-                Setup.buttons[6]:SetNormalTexture(colorpath .. "book-regular.tga")
-                Setup.buttons[6]:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[6]:SetPushedTexture(colorpath .. "book-faded.tga")
-                Setup.buttons[6]:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[6]:SetHighlightTexture(colorpath .. "book-highlight.tga")
-                Setup.buttons[6]:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+            -- Turtle WoW exclusive buttons (only apply if available)
+            if ShowTWBGQueueMenu and Setup.pvpButton then
+                Setup.pvpButton:SetNormalTexture(colorpath .. "book-regular.tga")
+                Setup.pvpButton:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.pvpButton:SetPushedTexture(colorpath .. "book-faded.tga")
+                Setup.pvpButton:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.pvpButton:SetHighlightTexture(colorpath .. "book-highlight.tga")
+                Setup.pvpButton:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
             end
 
-            if Setup.buttons[7] then
-                Setup.buttons[7]:SetNormalTexture(colorpath .. "eye-regular.tga")
-                Setup.buttons[7]:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[7]:SetPushedTexture(colorpath .. "eye-faded.tga")
-                Setup.buttons[7]:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[7]:SetHighlightTexture(colorpath .. "eye-highlight.tga")
-                Setup.buttons[7]:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+            if LFT_Toggle and Setup.lftButton then
+                Setup.lftButton:SetNormalTexture(colorpath .. "eye-regular.tga")
+                Setup.lftButton:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.lftButton:SetPushedTexture(colorpath .. "eye-faded.tga")
+                Setup.lftButton:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.lftButton:SetHighlightTexture(colorpath .. "eye-highlight.tga")
+                Setup.lftButton:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
             end
 
-            if Setup.buttons[8] then
-                Setup.buttons[8]:SetNormalTexture(colorpath .. "horseshoe-regular.tga")
-                Setup.buttons[8]:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[8]:SetPushedTexture(colorpath .. "horseshoe-faded.tga")
-                Setup.buttons[8]:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[8]:SetHighlightTexture(colorpath .. "horseshoe-highlight.tga")
-                Setup.buttons[8]:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+            if ShowEBCMinimapDropdown and Setup.ebcButton then
+                Setup.ebcButton:SetNormalTexture(colorpath .. "horseshoe-regular.tga")
+                Setup.ebcButton:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.ebcButton:SetPushedTexture(colorpath .. "horseshoe-faded.tga")
+                Setup.ebcButton:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.ebcButton:SetHighlightTexture(colorpath .. "horseshoe-highlight.tga")
+                Setup.ebcButton:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
             end
 
-            if Setup.buttons[9] then
-                Setup.buttons[9]:SetNormalTexture(colorpath .. "shield-regular.tga")
-                Setup.buttons[9]:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[9]:SetPushedTexture(colorpath .. "shield-faded.tga")
-                Setup.buttons[9]:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[9]:SetHighlightTexture(colorpath .. "shield-highlight.tga")
-                Setup.buttons[9]:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+            -- Fixed Blizzard buttons (always present)
+            if Setup.worldMapBtn then
+                Setup.worldMapBtn:SetNormalTexture(colorpath .. "shield-regular.tga")
+                Setup.worldMapBtn:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.worldMapBtn:SetPushedTexture(colorpath .. "shield-faded.tga")
+                Setup.worldMapBtn:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.worldMapBtn:SetHighlightTexture(colorpath .. "shield-highlight.tga")
+                Setup.worldMapBtn:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
             end
 
-            if Setup.buttons[10] then
-                Setup.buttons[10]:SetNormalTexture(colorpath .. "wow-regular.tga")
-                Setup.buttons[10]:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[10]:SetPushedTexture(colorpath .. "wow-faded.tga")
-                Setup.buttons[10]:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[10]:SetHighlightTexture(colorpath .. "wow-highlight.tga")
-                Setup.buttons[10]:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+            if Setup.mainMenuBtn then
+                Setup.mainMenuBtn:SetNormalTexture(colorpath .. "wow-regular.tga")
+                Setup.mainMenuBtn:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.mainMenuBtn:SetPushedTexture(colorpath .. "wow-faded.tga")
+                Setup.mainMenuBtn:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.mainMenuBtn:SetHighlightTexture(colorpath .. "wow-highlight.tga")
+                Setup.mainMenuBtn:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
             end
 
-            if Setup.buttons[11] then
-                Setup.buttons[11]:SetNormalTexture(colorpath .. "question-regular.tga")
-                Setup.buttons[11]:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[11]:SetPushedTexture(colorpath .. "question-faded.tga")
-                Setup.buttons[11]:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
-                Setup.buttons[11]:SetHighlightTexture(colorpath .. "question-highlight.tga")
-                Setup.buttons[11]:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+            if Setup.helpBtn then
+                Setup.helpBtn:SetNormalTexture(colorpath .. "question-regular.tga")
+                Setup.helpBtn:GetNormalTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.helpBtn:SetPushedTexture(colorpath .. "question-faded.tga")
+                Setup.helpBtn:GetPushedTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
+                Setup.helpBtn:SetHighlightTexture(colorpath .. "question-highlight.tga")
+                Setup.helpBtn:GetHighlightTexture():SetTexCoord(36/128, 86/128, 29/128, 98/128)
             end
         else
             if Setup.buttons[2] then
@@ -580,58 +597,60 @@ DFRL:NewMod("Micro", 1, function()
                 Setup.buttons[5]:GetHighlightTexture():SetTexCoord(42/256, 77/256, 0/512, 48/512)
             end
 
-            if Setup.buttons[6] then
-                Setup.buttons[6]:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[6]:GetNormalTexture():SetTexCoord(0/256, 37/256, 269/512, 319/512)
-                Setup.buttons[6]:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[6]:GetPushedTexture():SetTexCoord(161/256, 197/256, 161/512, 211/512)
-                Setup.buttons[6]:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[6]:GetHighlightTexture():SetTexCoord(161/256, 197/256, 161/512, 211/512)
+            -- Fixed Blizzard buttons (always present)
+            if Setup.worldMapBtn then
+                Setup.worldMapBtn:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.worldMapBtn:GetNormalTexture():SetTexCoord(0/256, 37/256, 269/512, 319/512)
+                Setup.worldMapBtn:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.worldMapBtn:GetPushedTexture():SetTexCoord(161/256, 197/256, 161/512, 211/512)
+                Setup.worldMapBtn:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.worldMapBtn:GetHighlightTexture():SetTexCoord(161/256, 197/256, 161/512, 211/512)
             end
 
-            if Setup.buttons[7] then
-                Setup.buttons[7]:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[7]:GetNormalTexture():SetTexCoord(0/256, 38/256, 161/512, 211/512)
-                Setup.buttons[7]:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[7]:GetPushedTexture():SetTexCoord(41/256, 78/256, 107/512, 157/512)
-                Setup.buttons[7]:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[7]:GetHighlightTexture():SetTexCoord(41/256, 78/256, 107/512, 157/512)
+            if Setup.mainMenuBtn then
+                Setup.mainMenuBtn:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.mainMenuBtn:GetNormalTexture():SetTexCoord(0/256, 38/256, 161/512, 211/512)
+                Setup.mainMenuBtn:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.mainMenuBtn:GetPushedTexture():SetTexCoord(41/256, 78/256, 107/512, 157/512)
+                Setup.mainMenuBtn:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.mainMenuBtn:GetHighlightTexture():SetTexCoord(41/256, 78/256, 107/512, 157/512)
             end
 
-            if Setup.buttons[8] then
-                Setup.buttons[8]:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[8]:GetNormalTexture():SetTexCoord(82/256, 119/256, 325/512, 374/512)
-                Setup.buttons[8]:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[8]:GetPushedTexture():SetTexCoord(82/256, 119/256, 378/512, 429/512)
-                Setup.buttons[8]:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[8]:GetHighlightTexture():SetTexCoord(82/256, 119/256, 378/512, 429/512)
+            if Setup.helpBtn then
+                Setup.helpBtn:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.helpBtn:GetNormalTexture():SetTexCoord(82/256, 119/256, 325/512, 374/512)
+                Setup.helpBtn:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.helpBtn:GetPushedTexture():SetTexCoord(82/256, 119/256, 378/512, 429/512)
+                Setup.helpBtn:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.helpBtn:GetHighlightTexture():SetTexCoord(82/256, 119/256, 378/512, 429/512)
             end
 
-            if Setup.buttons[9] then
-                Setup.buttons[9]:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[9]:GetNormalTexture():SetTexCoord(162/256, 196/256, 107/512, 157/512)
-                Setup.buttons[9]:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[9]:GetPushedTexture():SetTexCoord(202/256, 237/256, 54/512, 102/512)
-                Setup.buttons[9]:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[9]:GetHighlightTexture():SetTexCoord(202/256, 237/256, 54/512, 102/512)
+            -- Turtle WoW exclusive buttons (gray fallback, only if present)
+            if ShowTWBGQueueMenu and Setup.pvpButton then
+                Setup.pvpButton:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.pvpButton:GetNormalTexture():SetTexCoord(162/256, 196/256, 107/512, 157/512)
+                Setup.pvpButton:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.pvpButton:GetPushedTexture():SetTexCoord(202/256, 237/256, 54/512, 102/512)
+                Setup.pvpButton:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.pvpButton:GetHighlightTexture():SetTexCoord(202/256, 237/256, 54/512, 102/512)
             end
 
-            if Setup.buttons[10] then
-                Setup.buttons[10]:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[10]:GetNormalTexture():SetTexCoord(2/256, 37/256, 107/512, 157/512)
-                Setup.buttons[10]:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[10]:GetPushedTexture():SetTexCoord(122/256, 157/256, 323/512, 372/512)
-                Setup.buttons[10]:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[10]:GetHighlightTexture():SetTexCoord(122/256, 157/256, 323/512, 372/512)
+            if LFT_Toggle and Setup.lftButton then
+                Setup.lftButton:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.lftButton:GetNormalTexture():SetTexCoord(2/256, 37/256, 107/512, 157/512)
+                Setup.lftButton:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.lftButton:GetPushedTexture():SetTexCoord(122/256, 157/256, 323/512, 372/512)
+                Setup.lftButton:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.lftButton:GetHighlightTexture():SetTexCoord(122/256, 157/256, 323/512, 372/512)
             end
 
-            if Setup.buttons[11] then
-                Setup.buttons[11]:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[11]:GetNormalTexture():SetTexCoord(202/256, 237/256, 215/512, 265/512)
-                Setup.buttons[11]:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[11]:GetPushedTexture():SetTexCoord(162/256, 198/256, 215/512, 265/512)
-                Setup.buttons[11]:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
-                Setup.buttons[11]:GetHighlightTexture():SetTexCoord(162/256, 198/256, 215/512, 265/512)
+            if ShowEBCMinimapDropdown and Setup.ebcButton then
+                Setup.ebcButton:SetNormalTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.ebcButton:GetNormalTexture():SetTexCoord(202/256, 237/256, 215/512, 265/512)
+                Setup.ebcButton:SetPushedTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.ebcButton:GetPushedTexture():SetTexCoord(162/256, 198/256, 215/512, 265/512)
+                Setup.ebcButton:SetHighlightTexture(Setup.texpath .. "uimicromenu2x.tga")
+                Setup.ebcButton:GetHighlightTexture():SetTexCoord(162/256, 198/256, 215/512, 265/512)
             end
         end
 
