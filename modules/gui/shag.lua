@@ -133,7 +133,7 @@ DFRL:NewMod("Gui-shag", 3, function()
                     local desc = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
                     desc:SetFont(self.font .. "BigNoodleTitling.ttf", self.DESCRIPTION_FONT_SIZE, "OUTLINE")
                     desc:SetPoint("TOPLEFT", panel, "TOPLEFT", 10, -yPos)
-                    desc:SetText(element.data.description or element.key)
+                    desc:SetText(DFRL:TR(element.data.description or element.key))
                     desc:SetTextColor(.9, .9, .9)
                     self.descriptionLabels[element.key] = desc
 
@@ -150,7 +150,7 @@ DFRL:NewMod("Gui-shag", 3, function()
                 local txt = panel:CreateFontString(nil, "OVERLAY")
                 txt:SetFont(self.font .. "BigNoodleTitling.ttf", 30, "OUTLINE")
                 txt:SetPoint("TOP", panel, "TOP", 10, -yPos-50)
-                txt:SetText("SHAGU TWEAKS EXTRAS MISSING\nINSTALL FOR MORE OPTIONS")
+                txt:SetText(DFRL:TR("SHAGU TWEAKS EXTRAS MISSING\nINSTALL FOR MORE OPTIONS"))
                 txt:SetTextColor(1, 0.5, 0.5)
                 local f3 = CreateFrame("Frame")
                 f3.t = 0

@@ -49,7 +49,7 @@ DFRL:NewMod("Gui-mods", 3, function()
 
                 local moduleName = modules[i]
                 local checkbox = DFRL.tools.CreateCheckbox(nil, nil, moduleName, "enabled", true)
-                checkbox.label:SetText(moduleName)
+                checkbox.label:SetText(DFRL:TR(moduleName))
                 self.grid:AddElement(row, line, checkbox)
 
                 line = line + 1
