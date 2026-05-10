@@ -1,6 +1,7 @@
 DFRL:NewDefaults("Collector", {
     enabled = { true },
     collectDarkMode = {0, "slider", {0, 1}, nil, "appearance", 1, "Adjust dark mode intensity", nil, nil},
+    excluded = {{}},
 })
 
 DFRL:NewMod("Collector", 1, function()
@@ -14,6 +15,149 @@ DFRL:NewMod("Collector", 1, function()
     }
 
     DFRL.MinimapButtonsPerRow = 3
+
+    function Setup:GetExcluded()
+        local excluded = DFRL:GetTempDB("Collector", "excluded")
+        if type(excluded) ~= "table" then
+            excluded = {}
+            DFRL:SetTempDBNoCallback("Collector", "excluded", excluded)
+        end
+        return excluded
+    end
+
+    function Setup:IsExcluded(name)
+        local excluded = self:GetExcluded()
+        for i = 1, table.getn(excluded) do
+            if excluded[i] == name then
+                return true
+            end
+        end
+        return false
+    end
+
+    function Setup:AddExcluded(name)
+        if not name or name == "" or self:IsExcluded(name) then return end
+        local excluded = self:GetExcluded()
+        table.insert(excluded, name)
+        DFRL:SetTempDBNoCallback("Collector", "excluded", excluded)
+    end
+
+    function Setup:RemoveExcluded(name)
+        local excluded = self:GetExcluded()
+        for i = table.getn(excluded), 1, -1 do
+            if excluded[i] == name then
+                table.remove(excluded, i)
+            end
+        end
+        DFRL:SetTempDBNoCallback("Collector", "excluded", excluded)
+    end
+
+    function Setup:RemoveFromOrder(name)
+        local saved = DFRL:GetTempDB("Collector", "buttonOrder") or {}
+        for i = table.getn(saved), 1, -1 do
+            if saved[i] == name then
+                table.remove(saved, i)
+            end
+        end
+        DFRL:SetTempDBNoCallback("Collector", "buttonOrder", saved)
+
+        for i = table.getn(self.buttonOrder), 1, -1 do
+            local button = self.buttonOrder[i]
+            if button and button:GetName() == name then
+                table.remove(self.buttonOrder, i)
+            end
+        end
+    end
+
+    function Setup:GetDragTarget(button)
+        if not button then return nil end
+        if button:IsObjectType("Button") then return button end
+        if button:IsObjectType("Frame") then
+            local children = {button:GetChildren()}
+            for i = 1, table.getn(children) do
+                if children[i]:IsObjectType("Button") then
+                    return children[i]
+                end
+            end
+        end
+        return button
+    end
+
+    function Setup:SetFallbackPosition(button)
+        button:ClearAllPoints()
+        button:SetFrameStrata("MEDIUM")
+        button:SetPoint("TOPLEFT", Minimap, "BOTTOMLEFT", 0, -8)
+    end
+
+    function Setup:ReleaseButton(button, useFallback)
+        if not button then return end
+        local dragTarget = self:GetDragTarget(button)
+        if dragTarget and dragTarget.dfrlCollectorScripts then
+            dragTarget:SetScript("OnDragStart", dragTarget.dfrlCollectorScripts.OnDragStart)
+            dragTarget:SetScript("OnDragStop", dragTarget.dfrlCollectorScripts.OnDragStop)
+            dragTarget.dfrlCollectorScripts = nil
+        end
+        if dragTarget and dragTarget.UnlockHighlight then
+            dragTarget:UnlockHighlight()
+        end
+        if button.UnlockHighlight then
+            button:UnlockHighlight()
+        end
+        if button.originalSetPoint then
+            button.SetPoint = button.originalSetPoint
+            button.originalSetPoint = nil
+        end
+
+        button:SetParent(Minimap)
+
+        if useFallback then
+            self:SetFallbackPosition(button)
+        end
+        button:Show()
+
+        if useFallback then
+            local releaseFrame = CreateFrame("Frame")
+            releaseFrame:SetScript("OnUpdate", function()
+                releaseFrame:SetScript("OnUpdate", nil)
+                self:SetFallbackPosition(button)
+                button:Show()
+            end)
+        end
+    end
+
+    function Setup:RefreshCollection(includeButton)
+        local buttons = {}
+        local seen = {}
+
+        local function AddButton(button, known)
+            if not button or not button:GetName() or seen[button:GetName()] then return end
+            seen[button:GetName()] = true
+            if self:IsExcluded(button:GetName()) then return end
+            if not known and not self:IsValidButton(button) then return end
+            table.insert(buttons, button)
+        end
+
+        for i = 1, table.getn(self.buttonOrder) do
+            AddButton(self.buttonOrder[i], true)
+        end
+
+        AddButton(includeButton, true)
+
+        local children = { Minimap:GetChildren() }
+        for i = 1, table.getn(children) do
+            AddButton(children[i], false)
+        end
+
+        if table.getn(buttons) == 0 then
+            self.collector:Hide()
+            if DFRL.toggleButton then DFRL.toggleButton:Hide() end
+            self.buttonOrder = {}
+            return
+        end
+        if DFRL.toggleButton then DFRL.toggleButton:Show() end
+        self:ArrangeButtons(buttons)
+        self.collector:Hide()
+    end
 
     function Setup:CleanupFrames()
         KillFrame(_G.MBB_MinimapButtonFrame)
@@ -84,7 +228,9 @@ DFRL:NewMod("Collector", 1, function()
         for i = 1, numChildren do
             local child = children[i]
             if child and self:IsValidButton(child) then
-                table.insert(buttons, child)
+                if not self:IsExcluded(child:GetName()) then
+                    table.insert(buttons, child)
+                end
             end
         end
         return buttons
@@ -101,20 +247,20 @@ DFRL:NewMod("Collector", 1, function()
 
         for i = 1, table.getn(buttons) do
             local button = buttons[i]
+            if not button.originalSetPoint then
+                button.originalSetPoint = button.SetPoint
+                button.SetPoint = function() end
+            end
+
             button:SetParent(self.collector)
             button:ClearAllPoints()
 
             local row = math.floor(count / buttonsPerRow)
             local col = count - (row * buttonsPerRow)
 
-            button:SetPoint("TOPRIGHT", self.collector, "TOPRIGHT",
+            button.originalSetPoint(button, "TOPRIGHT", self.collector, "TOPRIGHT",
                 -3 - (row * (buttonSize + padding)),
                 -6 - (col * (buttonSize + padding)))
-
-            if not button.originalSetPoint then
-                button.originalSetPoint = button.SetPoint
-                button.SetPoint = function() end
-            end
 
             self:EnableDrag(button, i)
 
@@ -235,6 +381,66 @@ DFRL:NewMod("Collector", 1, function()
         DFRL:SetTempDBNoCallback("Collector", "buttonOrder", order)
     end
 
+    function Setup:Exclude(name)
+        local button = _G[name]
+        self:AddExcluded(name)
+        self:RemoveFromOrder(name)
+        if button then
+            self:ReleaseButton(button, true)
+        end
+        self:RefreshCollection()
+    end
+
+    function Setup:Include(name)
+        self:RemoveExcluded(name)
+        self:RefreshCollection(_G[name])
+    end
+
+    function Setup:ResetExcluded()
+        DFRL:SetTempDBNoCallback("Collector", "excluded", {})
+        self:RefreshCollection()
+    end
+
+    function Setup:PrintExcluded()
+        local names = {}
+        local seen = {}
+
+        local function AddName(name)
+            if not name or name == "" or seen[name] then return end
+            seen[name] = true
+            table.insert(names, name)
+        end
+
+        for i = 1, table.getn(self.buttonOrder) do
+            local button = self.buttonOrder[i]
+            if button then AddName(button:GetName()) end
+        end
+
+        local children = { Minimap:GetChildren() }
+        for i = 1, table.getn(children) do
+            local child = children[i]
+            if child and child:GetName() and self:IsValidButton(child) then
+                AddName(child:GetName())
+            end
+        end
+
+        local excluded = self:GetExcluded()
+        for i = 1, table.getn(excluded) do
+            AddName(excluded[i])
+        end
+
+        if table.getn(names) == 0 then
+            print("DFRL Collector: no buttons found")
+            return
+        end
+
+        print("DFRL Collector buttons:")
+        for i = 1, table.getn(names) do
+            local status = self:IsExcluded(names[i]) and "excluded" or "collected"
+            print("  [" .. status .. "] " .. names[i])
+        end
+    end
+
     function Setup:RepositionAllButtons()
         local buttonSize = 24
         local padding = 4
@@ -308,20 +514,19 @@ DFRL:NewMod("Collector", 1, function()
     end
 
     function Setup:EnableDrag(button, index)
-        local dragTarget = button
-        if button:IsObjectType("Frame") then
-            local children = {button:GetChildren()}
-            for i = 1, table.getn(children) do
-                if children[i]:IsObjectType("Button") then
-                    dragTarget = children[i]
-                    break
-                end
-            end
-        end
+        local dragTarget = self:GetDragTarget(button)
+        if not dragTarget then return end
 
         dragTarget:RegisterForDrag("LeftButton")
         button:SetMovable(true)
         dragTarget:EnableMouse(true)
+
+        if not dragTarget.dfrlCollectorScripts then
+            dragTarget.dfrlCollectorScripts = {
+                OnDragStart = dragTarget:GetScript("OnDragStart"),
+                OnDragStop = dragTarget:GetScript("OnDragStop"),
+            }
+        end
 
         dragTarget:SetScript("OnDragStart", function()
             self.dragStartIndex = index
@@ -340,6 +545,11 @@ DFRL:NewMod("Collector", 1, function()
                         currentIndex = i
                         break
                     end
+                end
+
+                if not currentIndex then
+                    self:ReleaseButton(button, true)
+                    return
                 end
 
                 button:ClearAllPoints()
@@ -370,6 +580,13 @@ DFRL:NewMod("Collector", 1, function()
         self:StartDelayedCollection()
         self:AddBorders()
         self:CreateToggleButton()
+
+        DFRL.collector = {
+            List = function() Setup:PrintExcluded() end,
+            Del = function(name) Setup:Exclude(name) end,
+            Add = function(name) Setup:Include(name) end,
+            Reset = function() Setup:ResetExcluded() end,
+        }
     end
 
     Setup:Run()
