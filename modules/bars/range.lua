@@ -36,7 +36,7 @@ DFRL:NewMod("RangeIndicator", 1, function()
         if self.useSimple then
             self.indicator = button:CreateFontString(nil, "OVERLAY")
             self.indicator:SetFont("Fonts\\FRIZQT__.TTF", 20, "OUTLINE")
-            self.indicator:SetText("•")
+            self.indicator:SetText("X")
             if self.useDark then
                 self.indicator:SetTextColor(0, 0, 0)
             else

@@ -111,7 +111,7 @@ DFRL:NewMod("Bars", 1, function()
             }
         }
 
-        -- ✅ PATCH: Immersion compat helper (não força alpha quando Immersion estiver ativo)
+        -- Immersion compat helper
         local _IsAddOnLoaded = (C_AddOns and C_AddOns.IsAddOnLoaded) or IsAddOnLoaded
         local function DFRL_IsImmersionLoaded()
             return _IsAddOnLoaded and _IsAddOnLoaded("Immersion")
@@ -370,7 +370,7 @@ DFRL:NewMod("Bars", 1, function()
                         _G["ActionButton"..i]:SetAlpha(0)
                         _G["ActionButton"..i]:EnableMouse(false)
                     else
-                        -- ✅ PATCH: não forçar alpha quando Immersion estiver carregado
+                        -- Do not force alpha while Immersion is loaded
                         if not DFRL_IsImmersionLoaded() then
                             _G["ActionButton"..i]:SetAlpha(1)
                         end
