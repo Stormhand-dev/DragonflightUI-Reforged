@@ -250,7 +250,28 @@ DFRL:NewMod("GUI-Dragonflight", 4, function()
         end
 
         _G["SLASH_DFRL1"] = "/dfrl"
-        _G.SlashCmdList["DFRL"] = function()
+        _G.SlashCmdList["DFRL"] = function(msg)
+            msg = msg or ""
+            local _, _, command, action, name = string.find(msg, "^(%S+)%s*(%S*)%s*(.*)$")
+            if command == "collector" then
+                if not DFRL.collector then
+                    print("DFRL Collector is not available")
+                elseif action == "list" then
+                    DFRL.collector.List()
+                elseif action == "del" and name ~= "" then
+                    DFRL.collector.Del(name)
+                    print("DFRL Collector excluded: " .. name)
+                elseif action == "add" and name ~= "" then
+                    DFRL.collector.Add(name)
+                    print("DFRL Collector added: " .. name)
+                elseif action == "reset" then
+                    DFRL.collector.Reset()
+                    print("DFRL Collector exclusions reset")
+                else
+                    print("Usage: /dfrl collector list | del <ButtonName> | add <ButtonName> | reset")
+                end
+                return
+            end
             Toggle()
         end
     end

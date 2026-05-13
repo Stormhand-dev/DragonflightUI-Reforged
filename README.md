@@ -106,6 +106,21 @@ Immersion is developed and maintained by the same author.
 
 <br>
 
+## Collector Commands
+
+The Collector module can exclude minimap buttons from Dragonflight UI: Reforged's minimap button collector.
+
+```text
+/dfrl collector list
+/dfrl collector del <ButtonName>
+/dfrl collector add <ButtonName>
+/dfrl collector reset
+```
+
+Use `list` to show known minimap button names, `del` to release a button back to the minimap, `add` to collect it again, and `reset` to clear all exclusions.
+
+<br>
+
 ## 🛠️ Installation
 
 1. Download the **latest release** of **Dragonflight UI: Reforged**
