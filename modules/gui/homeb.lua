@@ -272,8 +272,10 @@ DFRL:NewMod("GUI-Dragonflight", 4, function()
                 UIFrameFadeIn(Base.titleFrame, 0.2, 0, 1)
             end)
 
-            GameMenuButtonShop:ClearAllPoints()
-            GameMenuButtonShop:SetPoint("TOP", self.gamemenuBtn, "BOTTOM", 0, -15)
+            if GameMenuButtonShop then
+                GameMenuButtonShop:ClearAllPoints()
+                GameMenuButtonShop:SetPoint("TOP", self.gamemenuBtn, "BOTTOM", 0, -15)
+            end
 
             GameMenuFrame:SetWidth(GameMenuFrame:GetWidth() + 10)
             GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 60)
