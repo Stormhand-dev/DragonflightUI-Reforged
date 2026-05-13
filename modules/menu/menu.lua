@@ -6,7 +6,7 @@ DFRL:NewMod("Menu", 1, function()
     local Setup = {
         menuframe = nil,
         w = 200,
-        h = ShopFrame_Toggle and 370 or 315,
+        h = ShopFrame_Toggle and 430 or 375,
         gap = 0,
         space = 15,
         btnw = 120,
@@ -148,7 +148,7 @@ end)
                 donationBtn:Hide()
             end
 
-            local videoBtn = DFRL.tools.CreateButton(self.menuframe, "Options", self.btnw, self.btnh)
+            local videoBtn = DFRL.tools.CreateButton(self.menuframe, "Video", self.btnw, self.btnh)
             if ShopFrame_Toggle then
                 videoBtn:SetPoint("TOP", donationBtn, "BOTTOM", 0, -self.space)
             else
@@ -159,8 +159,22 @@ end)
                 ShowUIPanel(OptionsFrame)
             end)
 
+            local soundBtn = DFRL.tools.CreateButton(self.menuframe, "Sound", self.btnw, self.btnh)
+            soundBtn:SetPoint("TOP", videoBtn, "BOTTOM", 0, -self.gap)
+            soundBtn:SetScript("OnClick", function()
+                self.menuframe:Hide()
+                ShowUIPanel(SoundOptionsFrame)
+            end)
+
+            local interfaceBtn = DFRL.tools.CreateButton(self.menuframe, "Interface", self.btnw, self.btnh)
+            interfaceBtn:SetPoint("TOP", soundBtn, "BOTTOM", 0, -self.gap)
+            interfaceBtn:SetScript("OnClick", function()
+                self.menuframe:Hide()
+                ShowUIPanel(UIOptionsFrame)
+            end)
+
             local keyBtn = DFRL.tools.CreateButton(self.menuframe, "Key Bindings", self.btnw, self.btnh)
-            keyBtn:SetPoint("TOP", videoBtn, "BOTTOM", 0, -self.space)
+            keyBtn:SetPoint("TOP", interfaceBtn, "BOTTOM", 0, -self.space)
             keyBtn:SetScript("OnClick", function()
                 self.menuframe:Hide()
                 KeyBindingFrame_LoadUI()
