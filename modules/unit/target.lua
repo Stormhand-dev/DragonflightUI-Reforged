@@ -6,8 +6,9 @@ DFRL:NewDefaults("Target", {
     textShow = {true, "checkbox", nil, nil, "Text", 4, "Show health and mana text", nil, nil},
     textMaxShow = {true, "checkbox", nil, "textShow", "Text", 5, "Show max health and mana text", nil, nil},
     noPercent = {true, "checkbox", nil, "textShow", "Text", 6, "Show only current values without percentages", nil, nil},
-    textColoringHealth = {false, "checkbox", nil, "textShow", "Text", 7, "Color text based on health percentage", nil, nil},
-    textColoringResource = {false, "checkbox", nil, "textShow", "Text", 8, "Color text based on resource (mana/rage/energy) percentage", nil, nil},
+    useShaguHealth = {false, "checkbox", nil, "textShow", "Text", 7, "Use ShaguTweaks real health values when available", nil, nil},
+    textColoringHealth = {false, "checkbox", nil, "textShow", "Text", 8, "Color text based on health percentage", nil, nil},
+    textColoringResource = {false, "checkbox", nil, "textShow", "Text", 9, "Color text based on resource (mana/rage/energy) percentage", nil, nil},
     frameFont = {"FRIZQT__.TTF", "dropdown", {
         "FRIZQT__.TTF",
         "Expressway",
@@ -21,17 +22,17 @@ DFRL:NewDefaults("Target", {
         "BigNoodleTitling",
         "Continuum",
         "DieDieDie"
-    }, nil, "Text", 9, "Change the font used for the targetframe", nil, nil},
-    healthSize = {15, "slider", {8, 20}, "textShow", "Text", 10, "Health text font size", nil, nil},
-    manaSize = {9, "slider", {8, 20}, "textShow", "Text", 11, "Mana text font size", nil, nil},
-    nameSize = {9, "slider", {6, 16}, nil, "Text", 12, "Target name text font size", nil, nil},
-    levelSize = {9, "slider", {6, 16}, nil, "Text", 13, "Target level text font size", nil, nil},
-    colorReaction = {true, "checkbox", nil, nil, "Health Bar", 14, "Color health bar based on target reaction", nil, nil},
-    colorClass = {false, "checkbox", nil, nil, "Health Bar", 15, "Color health bar based on target class", nil, nil},
-    enablePulse = {true, "checkbox", nil, nil, "Health Bar", 16, "Enable pulse animation on bars", nil, nil},
-    pulseColor = {{1, 1, 1}, "colour", nil, "enablePulse", "Health Bar", 17, "Color for pulse animation", nil, nil},
-    enableCutout = {true, "checkbox", nil, nil, "Health Bar", 18, "Enable cutout animation on bars", nil, nil},
-    cutoutColor = {{1, 0, 0}, "colour", nil, "enableCutout", "Health Bar", 19, "Color for damage cutout effect", nil, nil},
+    }, nil, "Text", 10, "Change the font used for the targetframe", nil, nil},
+    healthSize = {15, "slider", {8, 20}, "textShow", "Text", 11, "Health text font size", nil, nil},
+    manaSize = {9, "slider", {8, 20}, "textShow", "Text", 12, "Mana text font size", nil, nil},
+    nameSize = {9, "slider", {6, 16}, nil, "Text", 13, "Target name text font size", nil, nil},
+    levelSize = {9, "slider", {6, 16}, nil, "Text", 14, "Target level text font size", nil, nil},
+    colorReaction = {true, "checkbox", nil, nil, "Health Bar", 15, "Color health bar based on target reaction", nil, nil},
+    colorClass = {false, "checkbox", nil, nil, "Health Bar", 16, "Color health bar based on target class", nil, nil},
+    enablePulse = {true, "checkbox", nil, nil, "Health Bar", 17, "Enable pulse animation on bars", nil, nil},
+    pulseColor = {{1, 1, 1}, "colour", nil, "enablePulse", "Health Bar", 18, "Color for pulse animation", nil, nil},
+    enableCutout = {true, "checkbox", nil, nil, "Health Bar", 19, "Enable cutout animation on bars", nil, nil},
+    cutoutColor = {{1, 0, 0}, "colour", nil, "enableCutout", "Health Bar", 20, "Color for damage cutout effect", nil, nil},
 })
 
 DFRL:NewMod("Target", 1, function()
@@ -80,6 +81,17 @@ DFRL:NewMod("Target", 1, function()
             colorClass = false,
         }
     }
+
+    function Setup:GetTargetHealth()
+        if DFRL:GetTempDB("Target", "useShaguHealth") and ShaguTweaks and ShaguTweaks.libhealth and ShaguTweaks.libhealth.GetUnitHealth then
+            local health, maxHealth = ShaguTweaks.libhealth:GetUnitHealth("target")
+            if health and maxHealth then
+                return health, maxHealth
+            end
+        end
+
+        return UnitHealth("target"), UnitHealthMax("target")
+    end
 
     function Setup:KillBlizz()
         TargetFrameHealthBar:SetScript("OnEnter", nil)
@@ -214,8 +226,7 @@ DFRL:NewMod("Target", 1, function()
     function Setup:UpdateTexts()
         if not UnitExists("target") then return end
 
-        local health = UnitHealth("target")
-        local maxHealth = UnitHealthMax("target")
+        local health, maxHealth = self:GetTargetHealth()
         local healthPercent = maxHealth > 0 and health / maxHealth or 0
         local healthPercentInt = math.floor(healthPercent * 100)
 
@@ -447,6 +458,10 @@ DFRL:NewMod("Target", 1, function()
         Setup:UpdateTexts()
     end
 
+    callbacks.useShaguHealth = function()
+        Setup:UpdateTexts()
+    end
+
     callbacks.textColoringHealth = function(value)
         configCache.textColoringHealth = value
         configCache.lastUpdate = GetTime()
@@ -593,8 +608,7 @@ DFRL:NewMod("Target", 1, function()
 
         if event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
             if Setup.healthBar and UnitExists('target') then
-                local health = UnitHealth('target')
-                local maxHealth = UnitHealthMax('target')
+                local health, maxHealth = Setup:GetTargetHealth()
                 Setup.healthBar.max = maxHealth
                 Setup.healthBar:SetValue(health > 0 and health or 0.001)
             end
@@ -628,8 +642,7 @@ DFRL:NewMod("Target", 1, function()
             (event == "UNIT_RAGE" and arg1 == "target") or
             (event == "UNIT_FOCUS" and arg1 == "target") then
             if Setup.healthBar and UnitExists('target') then
-                local health = UnitHealth('target')
-                local maxHealth = UnitHealthMax('target')
+                local health, maxHealth = Setup:GetTargetHealth()
                 Setup.healthBar.max = maxHealth
                 Setup.healthBar:SetValue(health > 0 and health or 0.001)
             end
