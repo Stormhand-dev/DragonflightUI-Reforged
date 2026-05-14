@@ -19,29 +19,16 @@ DFRL:NewMod("Gui-shag", 3, function()
         HEADER_BOTTOM_SPACING = 25,
         CHECKBOX_ROW_SPACING = 45,
         MODULE_SPACING = 25,
+        elementsCreated = false,
     }
 
-    local f = CreateFrame("Frame")
-    f:RegisterEvent("VARIABLES_LOADED")
-    f:SetScript("OnEvent", function()
-        if DFRL.gui.shaguCore == true or DFRL.gui.shaguExtras == true then
-            Setup:MetaData()
-            Setup:Elements()
-        else
-            local waitFrame = CreateFrame("Frame")
-            waitFrame.elapsed = 0
-            waitFrame:SetScript("OnUpdate", function()
-                this.elapsed = this.elapsed + arg1
-                if (DFRL.gui.shaguCore == true or DFRL.gui.shaguExtras == true) or this.elapsed > 3 then
-                    this:SetScript("OnUpdate", nil)
-                    if DFRL.gui.shaguCore == true or DFRL.gui.shaguExtras == true then
-                        Setup:MetaData()
-                        Setup:Elements()
-                    end
-                end
-            end)
-        end
-    end)
+    function Setup:BuildElements()
+        if self.elementsCreated then return end
+        if not DFRL.gui.shaguCoreData and not DFRL.gui.shaguExtrasData then return end
+        self:MetaData()
+        self:Elements()
+        self.elementsCreated = true
+    end
 
     function Setup:MetaData()
         if DFRL.gui.shaguCoreData then
@@ -164,4 +151,9 @@ DFRL:NewMod("Gui-shag", 3, function()
             end
         end
     end
+
+    -- Wait for ShaguTweaks_config so checkboxes can read the saved states.
+    DFRL:OnShaguReady(function()
+        Setup:BuildElements()
+    end, true)
 end)

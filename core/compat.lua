@@ -138,36 +138,14 @@ function Setup:ApplyShagu()
         self.fixed.shaguExtras = true
     end
 
-    if ShaguTweaks_config then
-        if not DFRL.gui.shaguCore then
-            DFRL.gui.shaguCoreData = self:ShaguMetaData().core
-            DFRL.gui.shaguCore = true
-        end
+    if not DFRL.gui.shaguCore then
+        DFRL.gui.shaguCoreData = self:ShaguMetaData().core
+        DFRL.gui.shaguCore = true
+    end
 
-        if DFRL.addon2 and not DFRL.gui.shaguExtras then
-            DFRL.gui.shaguExtrasData = self:ShaguMetaData().extras
-            DFRL.gui.shaguExtras = true
-        end
-    else
-        local waitFrame = CreateFrame("Frame")
-        waitFrame.elapsed = 0
-        waitFrame:SetScript("OnUpdate", function()
-            this.elapsed = this.elapsed + arg1
-            if ShaguTweaks_config or this.elapsed > 2 then
-                this:SetScript("OnUpdate", nil)
-                if ShaguTweaks_config then
-                    if not DFRL.gui.shaguCore then
-                        DFRL.gui.shaguCoreData = Setup:ShaguMetaData().core
-                        DFRL.gui.shaguCore = true
-                    end
-
-                    if DFRL.addon2 and not DFRL.gui.shaguExtras then
-                        DFRL.gui.shaguExtrasData = Setup:ShaguMetaData().extras
-                        DFRL.gui.shaguExtras = true
-                    end
-                end
-            end
-        end)
+    if DFRL.addon2 and not DFRL.gui.shaguExtras then
+        DFRL.gui.shaguExtrasData = self:ShaguMetaData().extras
+        DFRL.gui.shaguExtras = true
     end
 end
 
@@ -203,21 +181,19 @@ function Setup:CheckComplete(f)
 end
 
 function Setup:Init()
+    DFRL:OnShaguReady(function()
+        self:ApplyShagu()
+        self.processed["ShaguTweaks"] = true
+    end)
 
     local f = CreateFrame("Frame")
     f:RegisterEvent("ADDON_LOADED")
     f:SetScript("OnEvent", function()
-        if event == "ADDON_LOADED" and self.addons[arg1] then
+        if event == "ADDON_LOADED" and arg1 == "ShaguTweaks-extras" then
             self:HandleAddon(arg1)
             self:CheckComplete(f)
         end
     end)
-
-    if DFRL.addon1 and ShaguTweaks then
-        self:ApplyShagu()
-        self.processed["ShaguTweaks"] = true
-        self:CheckComplete(f)
-    end
 end
 
 Setup:Init()
