@@ -490,22 +490,10 @@ DFRL:NewMod("Cast", 1, function()
 
     local UnitCastingInfo, UnitChannelInfo
 
-    local function InitShaguTweaks()
-        if ShaguTweaks and ShaguTweaks.UnitCastingInfo then
-            UnitCastingInfo = ShaguTweaks.UnitCastingInfo
-            UnitChannelInfo = ShaguTweaks.UnitChannelInfo
-            return true
-        end
-        return false
-    end
-
-    local f = CreateFrame("Frame")
-    f:RegisterEvent("ADDON_LOADED")
-    f:SetScript("OnEvent", function()
-        if event == "ADDON_LOADED" and arg1 == "ShaguTweaks" then
-            InitShaguTweaks()
-            f:UnregisterEvent("ADDON_LOADED")
-        end
+    -- ShaguTweaks may already be loaded before this module registers events.
+    DFRL:OnShaguReady(function()
+        UnitCastingInfo = ShaguTweaks.UnitCastingInfo
+        UnitChannelInfo = ShaguTweaks.UnitChannelInfo
     end)
 
     Setup:Castbar()
